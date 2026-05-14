@@ -1,0 +1,465 @@
+/* ── Screen: toolbar ── */
+.print-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--dark);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  gap: 10px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+}
+
+.print-back {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  color: rgba(255,255,255,0.7);
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: color 0.2s, background 0.2s;
+  flex-shrink: 0;
+}
+
+.print-back:hover { color: white; background: rgba(255,255,255,0.1); }
+
+.print-toolbar__actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.print-tool-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 8px;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.print-tool-btn--edit { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); }
+.print-tool-btn--edit:hover { background: rgba(255,255,255,0.18); color: white; }
+
+.print-tool-btn--sent { background: rgba(29,111,164,0.3); color: #60B4E8; }
+.print-tool-btn--sent:hover { background: rgba(29,111,164,0.45); }
+
+.print-tool-btn--whatsapp { background: rgba(37,211,102,0.2); color: #25D366; }
+.print-tool-btn--whatsapp:hover { background: rgba(37,211,102,0.32); }
+
+.print-tool-btn--print { background: var(--orange); color: white; }
+.print-tool-btn--print:hover { background: var(--orange-light); }
+
+/* ── Quote Document ── */
+.quote-doc {
+  max-width: 860px;
+  margin: 24px auto;
+  background: white;
+  padding: 48px 52px;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.1);
+  border-radius: 4px;
+  font-family: 'Inter', sans-serif;
+  font-size: 9.5pt;
+  color: #1A1A1A;
+  line-height: 1.5;
+}
+
+/* ── Header ── */
+.qdoc-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 20px;
+}
+
+.qdoc-logo {
+  height: 60px;
+  width: auto;
+  display: block;
+}
+
+.qdoc-header__tagline {
+  font-size: 7.5pt;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #9A9A9A;
+  margin-top: 4px;
+}
+
+.qdoc-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 22pt;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #E85D04;
+  margin-bottom: 10px;
+  line-height: 1;
+  text-align: right;
+}
+
+.qdoc-meta-table { border-collapse: collapse; margin-left: auto; }
+.qdoc-meta-table td {
+  padding: 2px 6px;
+  font-size: 8.5pt;
+  color: #6B6B6B;
+  vertical-align: top;
+}
+
+.qdoc-meta-table td:first-child {
+  color: #9A9A9A;
+  text-align: right;
+  white-space: nowrap;
+  padding-right: 12px;
+}
+
+.qdoc-meta-table strong { color: #1A1A1A; }
+
+/* ── Rule ── */
+.qdoc-rule {
+  height: 3px;
+  background: linear-gradient(90deg, #E85D04 0%, #FF7A1A 50%, transparent 100%);
+  border-radius: 2px;
+  margin-bottom: 20px;
+}
+
+/* ── Parties ── */
+.qdoc-parties {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.qdoc-party__label {
+  font-size: 7pt;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #E85D04;
+  margin-bottom: 5px;
+}
+
+.qdoc-party__name {
+  font-family: 'Playfair Display', serif;
+  font-size: 12pt;
+  font-weight: 600;
+  color: #0D0D0D;
+  margin-bottom: 4px;
+}
+
+.qdoc-party__detail {
+  font-size: 8pt;
+  color: #6B6B6B;
+  line-height: 1.55;
+}
+
+.qdoc-party--to { padding-left: 20px; border-left: 2px solid #F5F4F2; }
+
+.qdoc-party__tag {
+  display: inline-block;
+  font-size: 7pt;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #E85D04;
+  background: #FFF3E8;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-top: 6px;
+}
+
+/* ── Items Table ── */
+.qdoc-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 16px;
+  font-size: 8.5pt;
+}
+
+.qdoc-table thead tr {
+  background: #0D0D0D;
+}
+
+.qdoc-table th {
+  color: white;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 7.5pt;
+  padding: 9px 10px;
+  text-align: left;
+}
+
+.qdoc-th--num  { width: 24px; text-align: center; }
+.qdoc-th--item { }
+.qdoc-th--size { width: 56px; }
+.qdoc-th--qty  { width: 32px; text-align: right; }
+.qdoc-th--area { width: 64px; text-align: right; }
+.qdoc-th--rate { width: 68px; text-align: right; }
+.qdoc-th--amt  { width: 76px; text-align: right; }
+
+.qdoc-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #F0EFED;
+  vertical-align: top;
+}
+
+.qdoc-tr--even td { background: #FAFAF8; }
+
+.qdoc-td--num  { text-align: center; color: #9A9A9A; font-size: 7.5pt; }
+.qdoc-td--item { font-weight: 500; }
+.qdoc-td--size { color: #6B6B6B; font-size: 8pt; }
+.qdoc-td--qty  { text-align: right; }
+.qdoc-td--area { text-align: right; color: #6B6B6B; }
+.qdoc-td--rate { text-align: right; }
+.qdoc-td--amt  { text-align: right; font-weight: 600; }
+
+/* ── Room grouping rows ── */
+.qdoc-tr--room-header td {
+  background: #F5F4F2;
+  padding: 7px 10px 5px;
+  border-bottom: none;
+}
+
+.qdoc-td--room-header {
+  font-size: 0pt;
+}
+
+.qdoc-room-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 8pt;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #E85D04;
+}
+
+.qdoc-tr--room-subtotal td {
+  background: #FFF3E8;
+  border-top: 1px solid rgba(232,93,4,0.2);
+  border-bottom: 2px solid rgba(232,93,4,0.15);
+  padding: 6px 10px;
+}
+
+.qdoc-td--room-subtotal-label {
+  font-size: 8pt;
+  font-weight: 600;
+  color: #E85D04;
+  font-style: italic;
+  text-align: right;
+  letter-spacing: 0.02em;
+}
+
+.qdoc-td--room-subtotal-amt {
+  text-align: right;
+  font-size: 8.5pt;
+  font-weight: 700;
+  color: #E85D04;
+}
+
+.qdoc-empty-row {
+  text-align: center;
+  color: #9A9A9A;
+  padding: 20px !important;
+  font-style: italic;
+}
+
+/* ── Totals ── */
+.qdoc-totals {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.qdoc-totals__box {
+  width: 280px;
+  border: 1.5px solid #E8E8E4;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.qdoc-total-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 14px;
+  font-size: 8.5pt;
+  color: #6B6B6B;
+  border-bottom: 1px solid #F0EFED;
+}
+
+.qdoc-total-row:last-child { border-bottom: none; }
+
+.qdoc-total-row--discount span:last-child { color: #16A34A; font-weight: 600; }
+
+.qdoc-total-row--grand {
+  background: #0D0D0D;
+  padding: 10px 14px;
+}
+
+.qdoc-total-row--grand span {
+  color: white;
+  font-weight: 700;
+  font-size: 9.5pt;
+  letter-spacing: 0.04em;
+}
+
+/* ── Bank Details ── */
+.qdoc-bank {
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  background: #FAFAF8;
+  border: 1px solid #E8E8E4;
+  border-radius: 6px;
+}
+
+.qdoc-bank__label {
+  font-size: 7.5pt;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #9A9A9A;
+  margin-bottom: 6px;
+}
+
+.qdoc-bank__content {
+  font-size: 8pt;
+  color: #6B6B6B;
+  line-height: 1.6;
+}
+
+/* ── Comments / Material Notes ── */
+.qdoc-comments {
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  background: #FAFAF8;
+  border: 1px solid #E8E8E4;
+  border-radius: 6px;
+}
+
+.qdoc-comments__label {
+  font-size: 7.5pt;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #9A9A9A;
+  margin-bottom: 6px;
+}
+
+.qdoc-comments__list {
+  margin: 0;
+  padding-left: 14px;
+  list-style: disc;
+}
+
+.qdoc-comments__list li {
+  font-size: 8pt;
+  color: #6B6B6B;
+  line-height: 1.65;
+  margin-bottom: 1px;
+}
+
+/* ── Terms ── */
+.qdoc-terms {
+  margin-bottom: 20px;
+}
+
+.qdoc-terms__label {
+  font-size: 7.5pt;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #9A9A9A;
+  margin-bottom: 6px;
+}
+
+.qdoc-terms__content {
+  font-size: 7.5pt;
+  color: #6B6B6B;
+  line-height: 1.65;
+}
+
+/* ── Signature ── */
+.qdoc-signature {
+  display: flex;
+  gap: 40px;
+  margin-bottom: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #E8E8E4;
+}
+
+.qdoc-signature__block {
+  flex: 1;
+}
+
+.qdoc-signature__line {
+  height: 1px;
+  background: #0D0D0D;
+  margin-bottom: 6px;
+  width: 80%;
+}
+
+.qdoc-signature__name {
+  font-size: 7.5pt;
+  font-weight: 600;
+  color: #1A1A1A;
+}
+
+.qdoc-signature__co {
+  font-size: 7pt;
+  color: #9A9A9A;
+  margin-top: 2px;
+}
+
+/* ── Footer ── */
+.qdoc-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px solid #E8E8E4;
+  font-size: 7pt;
+  color: #BCBCBC;
+  gap: 10px;
+}
+
+/* ─────────────────────────────────────────
+   PRINT STYLES  (@media print)
+   ───────────────────────────────────────── */
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm 14mm 14mm 14mm;
+  }
+
+  body { background: white !important; }
+
+  .no-print { display: none !important; }
+
+  .quote-doc {
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+    border-radius: 0;
+    max-width: 100%;
+    font-size: 9pt;
+  }
+
+  .qdoc-table { page-break-inside: auto; }
+  .qdoc-table tr { page-break-inside: avoid; }
+  .qdoc-signature { page-break-inside: avoid; }
+  .qdoc-totals { page-break-inside: avoid; }
+}
