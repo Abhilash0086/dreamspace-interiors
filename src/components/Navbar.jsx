@@ -27,7 +27,7 @@ export default function Navbar() {
     <header className={`navbar ${scrolled ? 'scrolled' : ''}`}>
       <div className="navbar__inner">
         <a href="#hero" className="navbar__logo" onClick={() => handleNav('#hero')}>
-          <img src="/logo.png" alt="Sandbox Interiors" />
+          <img src="/logo.png" alt="Dreamspace Interiors" />
         </a>
 
         <nav className={`navbar__nav ${menuOpen ? 'open' : ''}`}>

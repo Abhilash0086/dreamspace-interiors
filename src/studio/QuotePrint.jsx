@@ -20,7 +20,7 @@ export default function QuotePrint() {
 
   const handleWhatsApp = () => {
     if (!quote) return
-    const msg = `Hello ${quote.client?.name || ''},\n\nPlease find your interior design quotation from *Sandbox Interiors*.\n\n*Quote #:* ${quote.id}\n*Date:* ${fmtDate(quote.date)}\n*Valid Until:* ${fmtDate(quote.validUntil)}\n*Grand Total:* ${fmt(quote.grandTotal)}\n\nThank you for choosing Sandbox Interiors.\nFor any queries, call us at +91 98765 43210.`
+    const msg = `Hello ${quote.client?.name || ''},\n\nPlease find your interior design quotation from *Dreamspace Interiors*.\n\n*Quote #:* ${quote.id}\n*Date:* ${fmtDate(quote.date)}\n*Valid Until:* ${fmtDate(quote.validUntil)}\n*Grand Total:* ${fmt(quote.grandTotal)}\n\nThank you for choosing Dreamspace Interiors.`
     const phone = quote.client?.phone?.replace(/\D/g, '') || ''
     const url = phone
       ? `https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`
@@ -86,7 +86,7 @@ export default function QuotePrint() {
         {/* Header */}
         <div className="qdoc-header">
           <div className="qdoc-header__brand">
-            <img src="/logo.png" alt="Sandbox Interiors" className="qdoc-logo" />
+            <img src="/logo.png" alt="Dreamspace Interiors" className="qdoc-logo" />
             <div className="qdoc-header__tagline">Luxury in Every Detail</div>
           </div>
           <div className="qdoc-header__meta">
@@ -109,11 +109,8 @@ export default function QuotePrint() {
         <div className="qdoc-parties">
           <div className="qdoc-party">
             <div className="qdoc-party__label">FROM</div>
-            <div className="qdoc-party__name">Sandbox Interiors</div>
+            <div className="qdoc-party__name">Dreamspace Interiors</div>
             <div className="qdoc-party__detail">Aswin Kumar (Founder)</div>
-            <div className="qdoc-party__detail">29K, Krishnasamy Street, Indira Nagar</div>
-            <div className="qdoc-party__detail">Rathinapuri, Coimbatore — 641027</div>
-            <div className="qdoc-party__detail">+91 98765 43210 | sandboxinteriors@gmail.com</div>
           </div>
           <div className="qdoc-party qdoc-party--to">
             <div className="qdoc-party__label">TO</div>
@@ -290,7 +287,7 @@ export default function QuotePrint() {
           <div className="qdoc-signature__block">
             <div className="qdoc-signature__line" />
             <div className="qdoc-signature__name">Authorized Signature</div>
-            <div className="qdoc-signature__co">Sandbox Interiors</div>
+            <div className="qdoc-signature__co">Dreamspace Interiors</div>
           </div>
           <div className="qdoc-signature__block qdoc-signature__block--client">
             <div className="qdoc-signature__line" />
@@ -301,7 +298,7 @@ export default function QuotePrint() {
 
         {/* Footer */}
         <div className="qdoc-footer">
-          <span>Sandbox Interiors · sandboxinteriors@gmail.com · +91 98765 43210</span>
+          <span>Dreamspace Interiors</span>
           <span>@sandboxinterior</span>
         </div>
       </div>

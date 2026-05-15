@@ -46,7 +46,7 @@ export default function About() {
           </h2>
 
           <p className="about__body fade-up delay-2">
-            Meet <strong>Aswin Kumar</strong> — the creative force behind Sandbox Interiors.
+            Meet <strong>Aswin Kumar</strong> — the creative force behind Dreamspace Interiors.
             A second-generation entrepreneur, Aswin grew up watching his family build and run
             a motor oil manufacturing business. That hands-on foundation gave him something
             most designers lack: a deep understanding of craftsmanship, quality materials,

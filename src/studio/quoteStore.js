@@ -92,7 +92,7 @@ export async function newBlankQuote() {
     grandTotal: 0,
     notes: '',
     terms: `1. Given quotation is for the above mentioned products.\n2. Electrical work, electrical fittings and civil work not included.\n3. Payment: 60% advance on confirmation / 30% on/before door installation / 10% on handover.`,
-    bankDetails: 'Account Name: Sandbox Interiors\nBank: [Bank Name]\nAccount No: [Account Number]\nIFSC: [IFSC Code]',
+    bankDetails: 'Account Name: Dreamspace Interiors\nBank: [Bank Name]\nAccount No: [Account Number]\nIFSC: [IFSC Code]',
   }
 }
 

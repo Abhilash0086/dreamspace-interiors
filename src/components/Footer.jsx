@@ -26,7 +26,7 @@ export default function Footer() {
       <div className="footer__inner">
         <div className="footer__brand">
           <a href="#hero" onClick={() => handleNav('#hero')} className="footer__logo-link">
-            <img src="/logo.png" alt="Sandbox Interiors" className="footer__logo" />
+            <img src="/logo.png" alt="Dreamspace Interiors" className="footer__logo" />
           </a>
           <p className="footer__tagline">
             Luxury in Every Detail.<br />
@@ -105,7 +105,7 @@ export default function Footer() {
       <div className="footer__bottom">
         <div className="footer__bottom-inner">
           <p className="footer__copy">
-            © {new Date().getFullYear()} Sandbox Interiors. All rights reserved.
+            © {new Date().getFullYear()} Dreamspace Interiors. All rights reserved.
           </p>
           <p className="footer__founder">
             Founded by <strong>Aswin Kumar</strong>
