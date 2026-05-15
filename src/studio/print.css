@@ -90,6 +90,14 @@
   display: block;
 }
 
+.qdoc-header__company {
+  font-family: 'Playfair Display', serif;
+  font-size: 20pt;
+  font-weight: 700;
+  color: #0D0D0D;
+  line-height: 1;
+}
+
 .qdoc-header__tagline {
   font-size: 7.5pt;
   letter-spacing: 0.15em;

@@ -86,7 +86,7 @@ export default function QuotePrint() {
         {/* Header */}
         <div className="qdoc-header">
           <div className="qdoc-header__brand">
-            <img src="/logo.png" alt="Dreamspace Interiors" className="qdoc-logo" />
+            <div className="qdoc-header__company">Dreamspace Interiors</div>
             <div className="qdoc-header__tagline">Luxury in Every Detail</div>
           </div>
           <div className="qdoc-header__meta">
@@ -263,14 +263,6 @@ export default function QuotePrint() {
                 <li key={i}>{c}</li>
               ))}
             </ul>
-          </div>
-        )}
-
-        {/* Bank details */}
-        {quote.bankDetails && (
-          <div className="qdoc-bank">
-            <div className="qdoc-bank__label">Payment Details</div>
-            <div className="qdoc-bank__content" style={{ whiteSpace: 'pre-line' }}>{quote.bankDetails}</div>
           </div>
         )}
 
