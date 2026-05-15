@@ -110,7 +110,6 @@ export default function QuotePrint() {
           <div className="qdoc-party">
             <div className="qdoc-party__label">FROM</div>
             <div className="qdoc-party__name">Dreamspace Interiors</div>
-            <div className="qdoc-party__detail">Aswin Kumar (Founder)</div>
           </div>
           <div className="qdoc-party qdoc-party--to">
             <div className="qdoc-party__label">TO</div>
