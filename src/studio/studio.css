@@ -553,6 +553,18 @@
   padding: 8px 0;
 }
 
+.item-row__field--readonly input {
+  font-weight: 700;
+  color: var(--orange);
+  background: var(--orange-pale);
+  border-color: rgba(232,93,4,0.25);
+}
+
+.item-row__field--readonly input:focus {
+  background: white;
+  border-color: var(--orange);
+}
+
 /* ── Room row ── */
 .item-row__room-row {
   display: flex;

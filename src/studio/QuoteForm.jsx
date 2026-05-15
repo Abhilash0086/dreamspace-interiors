@@ -111,8 +111,13 @@ function ItemRow({ item, onChange, onDelete }) {
             />
           </div>
           <div className="item-row__field item-row__field--amount item-row__field--readonly">
-            <label>Total</label>
-            <span className="item-row__amount">{fmt(item.amount)}</span>
+            <label>Total (₹)</label>
+            <input
+              type="number" inputMode="decimal" min="0"
+              value={item.amount || ''}
+              placeholder="0"
+              onChange={(e) => onChange({ ...item, amount: parseFloat(e.target.value) || 0 })}
+            />
           </div>
         </div>
       )}
