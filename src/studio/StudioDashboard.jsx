@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { loadQuotes, deleteQuote, STATUS_META } from './quoteStore'
+import { loadQuotes, deleteQuote, STATUS_META, getNextQuoteNumber, calcTotals, newBlankQuote, upsertQuote } from './quoteStore'
+import { parseQuoteExcel } from './excelImport'
+import { downloadTemplate } from './excelTemplate'
 import './studio.css'
 
 const fmt = (n) => '₹' + Number(n || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })
@@ -11,6 +13,9 @@ export default function StudioDashboard() {
   const [filter, setFilter] = useState('all')
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
+  const [importing, setImporting] = useState(false)
+  const [importError, setImportError] = useState('')
+  const fileInputRef = useRef(null)
   const navigate = useNavigate()
 
   const refresh = async () => {
@@ -32,6 +37,37 @@ export default function StudioDashboard() {
     return matchStatus && matchSearch
   })
 
+  const handleImport = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    e.target.value = ''
+    setImporting(true)
+    setImportError('')
+    try {
+      const parsed = await parseQuoteExcel(file)
+      const base = await newBlankQuote()
+      const items = parsed.items
+      const totals = calcTotals(items, 0, 0)
+      const quote = {
+        ...base,
+        client: { ...base.client, ...parsed.client },
+        date: parsed.date || base.date,
+        validUntil: parsed.validUntil || base.validUntil,
+        createdBy: parsed.createdBy || base.createdBy,
+        items,
+        comments: parsed.notes.length ? parsed.notes : base.comments,
+        terms: parsed.termLines.length ? parsed.termLines.join('\n') : base.terms,
+        ...totals,
+      }
+      await upsertQuote(quote)
+      navigate(`/studio/${quote.id}`)
+    } catch (err) {
+      setImportError(err.message || 'Failed to import. Check the file format.')
+    } finally {
+      setImporting(false)
+    }
+  }
+
   const handleDelete = async (e, id) => {
     e.stopPropagation()
     if (window.confirm('Delete this quotation?')) {
@@ -52,13 +88,34 @@ export default function StudioDashboard() {
           <h1>Quotations</h1>
           <p>{loading ? '…' : `${filtered.length} quote${filtered.length !== 1 ? 's' : ''}`}</p>
         </div>
-        <button className="studio-fab-inline" onClick={() => navigate('/studio/new')}>
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-            <path d="M9 3v12M3 9h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-          </svg>
-          New
-        </button>
+        <div className="studio-header__actions">
+          <button className="studio-icon-btn" title="Download template" onClick={downloadTemplate}>
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <path d="M9 3v9M6 9l3 3 3-3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M3 14h12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+            </svg>
+          </button>
+          <button className="studio-icon-btn" title="Import from Excel" onClick={() => fileInputRef.current?.click()} disabled={importing}>
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <path d="M9 13V4M6 7l3-3 3 3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M3 14h12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+            </svg>
+          </button>
+          <input ref={fileInputRef} type="file" accept=".xlsx,.xls" style={{ display: 'none' }} onChange={handleImport} />
+          <button className="studio-fab-inline" onClick={() => navigate('/studio/new')}>
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <path d="M9 3v12M3 9h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+            New
+          </button>
+        </div>
       </header>
+      {importError && (
+        <div className="studio-import-error">{importError} <button onClick={() => setImportError('')}>✕</button></div>
+      )}
+      {importing && (
+        <div className="studio-import-banner">Importing Excel… <div className="studio-spinner" style={{ width: 16, height: 16, borderWidth: 2 }} /></div>
+      )}
 
       <div className="studio-toolbar">
         <div className="studio-search">

@@ -98,6 +98,59 @@
 
 .studio-fab-inline:hover { background: var(--orange-light); transform: scale(1.02); }
 
+.studio-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.studio-icon-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.8);
+  border-radius: 8px;
+  transition: background 0.2s, color 0.2s;
+  flex-shrink: 0;
+}
+
+.studio-icon-btn:hover { background: rgba(255,255,255,0.18); color: white; }
+.studio-icon-btn:disabled { opacity: 0.45; }
+
+.studio-import-error {
+  background: #FEF2F2;
+  color: #B91C1C;
+  font-size: 0.82rem;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.studio-import-error button {
+  background: none;
+  color: #B91C1C;
+  font-size: 1rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.studio-import-banner {
+  background: var(--orange-pale);
+  color: var(--orange);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .studio-save-btn {
   background: var(--orange);
   color: white;
