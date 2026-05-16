@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { loadQuotes, deleteQuote, STATUS_META, getNextQuoteNumber, calcTotals, newBlankQuote, upsertQuote } from './quoteStore'
+import { loadQuotes, deleteQuote, STATUS_META, calcTotals, newBlankQuote, upsertQuote } from './quoteStore'
 import { parseQuoteExcel } from './excelImport'
-import { downloadTemplate } from './excelTemplate'
+import { downloadTemplate, downloadTemplateWithExample } from './excelTemplate'
 import './studio.css'
 
 const fmt = (n) => '₹' + Number(n || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })
@@ -15,8 +15,20 @@ export default function StudioDashboard() {
   const [loading, setLoading] = useState(true)
   const [importing, setImporting] = useState(false)
   const [importError, setImportError] = useState('')
+  const [templateMenuOpen, setTemplateMenuOpen] = useState(false)
   const fileInputRef = useRef(null)
+  const templateMenuRef = useRef(null)
   const navigate = useNavigate()
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (templateMenuRef.current && !templateMenuRef.current.contains(e.target))
+        setTemplateMenuOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    document.addEventListener('touchstart', handler)
+    return () => { document.removeEventListener('mousedown', handler); document.removeEventListener('touchstart', handler) }
+  }, [])
 
   const refresh = async () => {
     setLoading(true)
@@ -89,12 +101,36 @@ export default function StudioDashboard() {
           <p>{loading ? '…' : `${filtered.length} quote${filtered.length !== 1 ? 's' : ''}`}</p>
         </div>
         <div className="studio-header__actions">
-          <button className="studio-icon-btn" title="Download template" onClick={downloadTemplate}>
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-              <path d="M9 3v9M6 9l3 3 3-3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M3 14h12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
-            </svg>
-          </button>
+          <div className="template-menu" ref={templateMenuRef}>
+            <button
+              className="studio-icon-btn"
+              title="Download template"
+              onClick={() => setTemplateMenuOpen((v) => !v)}
+            >
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <path d="M9 3v9M6 9l3 3 3-3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M3 14h12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+              </svg>
+            </button>
+            {templateMenuOpen && (
+              <div className="template-menu__dropdown">
+                <button onClick={() => { downloadTemplate(); setTemplateMenuOpen(false) }}>
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <rect x="2" y="2" width="10" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.3"/>
+                    <path d="M4 6h6M4 8h4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+                  </svg>
+                  Blank template
+                </button>
+                <button onClick={() => { downloadTemplateWithExample(); setTemplateMenuOpen(false) }}>
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <rect x="2" y="2" width="10" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.3"/>
+                    <path d="M4 5h6M4 7h6M4 9h3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+                  </svg>
+                  With example data
+                </button>
+              </div>
+            )}
+          </div>
           <button className="studio-icon-btn" title="Import from Excel" onClick={() => fileInputRef.current?.click()} disabled={importing}>
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
               <path d="M9 13V4M6 7l3-3 3 3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>

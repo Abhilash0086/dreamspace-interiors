@@ -121,6 +121,41 @@
 .studio-icon-btn:hover { background: rgba(255,255,255,0.18); color: white; }
 .studio-icon-btn:disabled { opacity: 0.45; }
 
+.template-menu { position: relative; }
+
+.template-menu__dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  z-index: 300;
+  min-width: 180px;
+  animation: picker-in 0.15s ease;
+}
+
+.template-menu__dropdown button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 11px 14px;
+  font-family: var(--font-sans);
+  font-size: 0.83rem;
+  font-weight: 500;
+  color: var(--text-main);
+  background: none;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+
+.template-menu__dropdown button:last-child { border-bottom: none; }
+.template-menu__dropdown button:hover { background: var(--orange-pale); color: var(--orange); }
+
 .studio-import-error {
   background: #FEF2F2;
   color: #B91C1C;
