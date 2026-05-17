@@ -217,7 +217,9 @@ export default function StudioDashboard() {
                         {sm.label}
                       </span>
                     </div>
-                    <div className="quote-card__client">{q.client?.name || 'Unnamed Client'}</div>
+                    <div className="quote-card__client">
+                      {[q.client?.salutation, q.client?.name].filter(Boolean).join(' ') || 'Unnamed Client'}
+                    </div>
                     <div className="quote-card__meta">
                       <span>{q.client?.projectType || '—'}</span>
                       <span>·</span>
