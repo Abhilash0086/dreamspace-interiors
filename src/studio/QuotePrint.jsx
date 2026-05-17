@@ -18,6 +18,13 @@ export default function QuotePrint() {
     })
   }, [id])
 
+  useEffect(() => {
+    if (!quote) return
+    const clientName = (quote.client?.name || 'Client').replace(/\s+/g, '_')
+    document.title = `${clientName}_Quotation`
+    return () => { document.title = 'Dreamspace Interiors' }
+  }, [quote])
+
   const handleWhatsApp = () => {
     if (!quote) return
     const msg = `Hello ${quote.client?.name || ''},\n\nPlease find your interior design quotation from *Dreamspace Interiors*.\n\n*Quote #:* ${quote.id}\n*Date:* ${fmtDate(quote.date)}\n*Valid Until:* ${fmtDate(quote.validUntil)}\n*Grand Total:* ${fmt(quote.grandTotal)}\n\nThank you for choosing Dreamspace Interiors.`
