@@ -154,8 +154,8 @@ export default function QuoteForm() {
       } else {
         updated[path] = val
       }
-      if (['discountPct', 'taxRate'].includes(path)) {
-        Object.assign(updated, calcTotals(updated.items, updated.discountPct, updated.taxRate))
+      if (path === 'discountPct') {
+        Object.assign(updated, calcTotals(updated.items, updated.discountPct))
       }
       return updated
     })
@@ -164,21 +164,21 @@ export default function QuoteForm() {
   const addItem = () => {
     setQuote((q) => {
       const items = [...q.items, { id: uid(), room: '', itemType: '', size: '', qty: '', area: 0, rate: '', amount: 0 }]
-      return { ...q, items, ...calcTotals(items, q.discountPct, q.taxRate) }
+      return { ...q, items, ...calcTotals(items, q.discountPct) }
     })
   }
 
   const updateItem = (idx, updated) => {
     setQuote((q) => {
       const items = q.items.map((it, i) => i === idx ? updated : it)
-      return { ...q, items, ...calcTotals(items, q.discountPct, q.taxRate) }
+      return { ...q, items, ...calcTotals(items, q.discountPct) }
     })
   }
 
   const deleteItem = (idx) => {
     setQuote((q) => {
       const items = q.items.filter((_, i) => i !== idx)
-      return { ...q, items, ...calcTotals(items, q.discountPct, q.taxRate) }
+      return { ...q, items, ...calcTotals(items, q.discountPct) }
     })
   }
 
@@ -274,11 +274,15 @@ export default function QuoteForm() {
                 <input type="tel" inputMode="tel" placeholder="+91 XXXXX XXXXX" value={quote.client.phone} onChange={(e) => set('client.phone', e.target.value)} />
               </div>
               <div className="form-field">
-                <label>Project Type</label>
-                <select value={quote.client.projectType} onChange={(e) => set('client.projectType', e.target.value)}>
-                  {PROJECT_TYPES.map((t) => <option key={t}>{t}</option>)}
-                </select>
+                <label>Email</label>
+                <input type="email" inputMode="email" placeholder="client@email.com" value={quote.client.email || ''} onChange={(e) => set('client.email', e.target.value)} />
               </div>
+            </div>
+            <div className="form-field">
+              <label>Project Type</label>
+              <select value={quote.client.projectType} onChange={(e) => set('client.projectType', e.target.value)}>
+                {PROJECT_TYPES.map((t) => <option key={t}>{t}</option>)}
+              </select>
             </div>
             <div className="form-field">
               <label>Project Address</label>
@@ -314,7 +318,7 @@ export default function QuoteForm() {
             {quote.items.length > 0 && (
               <div className="items-subtotal">Subtotal: <strong>{fmt(quote.subtotal)}</strong></div>
             )}
-            <button className="section-next-btn" onClick={() => setActiveSection('totals')}>Next: Totals & Tax →</button>
+            <button className="section-next-btn" onClick={() => setActiveSection('totals')}>Next: Totals →</button>
           </div>
         )}
 
@@ -332,15 +336,6 @@ export default function QuoteForm() {
               {quote.discountAmt > 0 && (
                 <div className="totals-row totals-row--discount">
                   <span>Discount</span><span>− {fmt(quote.discountAmt)}</span>
-                </div>
-              )}
-              <div className="totals-row totals-row--input">
-                <label>GST (%)</label>
-                <input type="number" inputMode="decimal" min="0" max="28" value={quote.taxRate} onChange={(e) => set('taxRate', e.target.value)} />
-              </div>
-              {quote.taxAmt > 0 && (
-                <div className="totals-row">
-                  <span>GST ({quote.taxRate}%)</span><span>{fmt(quote.taxAmt)}</span>
                 </div>
               )}
               <div className="totals-row totals-row--grand">

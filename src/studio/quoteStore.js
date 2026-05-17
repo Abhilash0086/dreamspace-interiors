@@ -43,13 +43,11 @@ export async function getNextQuoteNumber() {
   return `SBI-${year}-${String(next).padStart(3, '0')}`
 }
 
-export function calcTotals(items, discountPct, taxRate) {
+export function calcTotals(items, discountPct) {
   const subtotal = items.reduce((s, i) => s + (parseFloat(i.amount) || 0), 0)
   const discountAmt = (subtotal * (parseFloat(discountPct) || 0)) / 100
-  const taxable = subtotal - discountAmt
-  const taxAmt = (taxable * (parseFloat(taxRate) || 0)) / 100
-  const grandTotal = taxable + taxAmt
-  return { subtotal, discountAmt, taxAmt, grandTotal }
+  const grandTotal = subtotal - discountAmt
+  return { subtotal, discountAmt, grandTotal }
 }
 
 export function parseArea(size, qty) {
@@ -85,10 +83,8 @@ export async function newBlankQuote() {
       'Hardwares - EBCO (Soft Closures)',
     ],
     discountPct: 0,
-    taxRate: 18,
     subtotal: 0,
     discountAmt: 0,
-    taxAmt: 0,
     grandTotal: 0,
     notes: '',
     terms: `1. Given quotation is for the above mentioned products.\n2. Electrical work, electrical fittings and civil work not included.\n3. Payment: 60% advance on confirmation / 30% on/before door installation / 10% on handover.`,

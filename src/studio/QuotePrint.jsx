@@ -29,10 +29,14 @@ export default function QuotePrint() {
     if (!quote) return
     const msg = `Hello ${quote.client?.name || ''},\n\nPlease find your interior design quotation from *Dreamspace Interiors*.\n\n*Quote #:* ${quote.id}\n*Date:* ${fmtDate(quote.date)}\n*Valid Until:* ${fmtDate(quote.validUntil)}\n*Grand Total:* ${fmt(quote.grandTotal)}\n\nThank you for choosing Dreamspace Interiors.`
     const phone = quote.client?.phone?.replace(/\D/g, '') || ''
-    const url = phone
-      ? `https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`
-      : `https://wa.me/?text=${encodeURIComponent(msg)}`
-    window.open(url, '_blank')
+    window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, '_blank')
+  }
+
+  const handleEmail = () => {
+    if (!quote) return
+    const subject = encodeURIComponent(`Quotation ${quote.id} — Dreamspace Interiors`)
+    const body = encodeURIComponent(`Dear ${quote.client?.name || ''},\n\nPlease find attached your interior design quotation from Dreamspace Interiors.\n\nQuote #: ${quote.id}\nDate: ${fmtDate(quote.date)}\nValid Until: ${fmtDate(quote.validUntil)}\nGrand Total: ${fmt(quote.grandTotal)}\n\nThank you for choosing Dreamspace Interiors.`)
+    window.location.href = `mailto:${quote.client.email}?subject=${subject}&body=${body}`
   }
 
   const handleMarkSent = async () => {
@@ -68,13 +72,24 @@ export default function QuotePrint() {
               Mark Sent
             </button>
           )}
-          <button className="print-tool-btn print-tool-btn--whatsapp" onClick={handleWhatsApp}>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M13.5 2.5A6.9 6.9 0 002.3 11.2L1.5 14.5l3.4-.8A6.9 6.9 0 1013.5 2.5z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
-              <path d="M6 6.2c.1.5.5 1.5 1.3 2.3.8.8 1.8 1.2 2.3 1.3.3 0 .6-.1.8-.3l.4-.5c.1-.2 0-.4-.1-.5L9.9 8c-.1-.1-.3-.1-.5 0l-.4.3c-.5-.2-.9-.6-1.2-1.1l.3-.4c.1-.2.1-.4 0-.5L7.3 5.5c-.1-.1-.3-.2-.5-.1l-.5.4C6.1 5.9 6 6.1 6 6.2z" fill="currentColor"/>
-            </svg>
-            WhatsApp
-          </button>
+          {quote.client?.phone && (
+            <button className="print-tool-btn print-tool-btn--whatsapp" onClick={handleWhatsApp}>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M13.5 2.5A6.9 6.9 0 002.3 11.2L1.5 14.5l3.4-.8A6.9 6.9 0 1013.5 2.5z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
+                <path d="M6 6.2c.1.5.5 1.5 1.3 2.3.8.8 1.8 1.2 2.3 1.3.3 0 .6-.1.8-.3l.4-.5c.1-.2 0-.4-.1-.5L9.9 8c-.1-.1-.3-.1-.5 0l-.4.3c-.5-.2-.9-.6-1.2-1.1l.3-.4c.1-.2.1-.4 0-.5L7.3 5.5c-.1-.1-.3-.2-.5-.1l-.5.4C6.1 5.9 6 6.1 6 6.2z" fill="currentColor"/>
+              </svg>
+              WhatsApp
+            </button>
+          )}
+          {quote.client?.email && (
+            <button className="print-tool-btn print-tool-btn--email" onClick={handleEmail}>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <rect x="1.5" y="3.5" width="13" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.3"/>
+                <path d="M1.5 5l6.5 4.5L14.5 5" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
+              </svg>
+              Email
+            </button>
+          )}
           <button className="print-tool-btn print-tool-btn--print" onClick={() => window.print()}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M4 5V2h8v3" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
@@ -122,6 +137,7 @@ export default function QuotePrint() {
             <div className="qdoc-party__label">TO</div>
             <div className="qdoc-party__name">{quote.client?.name || '—'}</div>
             {quote.client?.phone && <div className="qdoc-party__detail">{quote.client.phone}</div>}
+            {quote.client?.email && <div className="qdoc-party__detail">{quote.client.email}</div>}
             {quote.client?.address && (
               <div className="qdoc-party__detail" style={{ whiteSpace: 'pre-line' }}>
                 {quote.client.address}
@@ -245,12 +261,6 @@ export default function QuotePrint() {
               <div className="qdoc-total-row qdoc-total-row--discount">
                 <span>Discount ({quote.discountPct}%)</span>
                 <span>− {fmt(quote.discountAmt)}</span>
-              </div>
-            )}
-            {quote.taxAmt > 0 && (
-              <div className="qdoc-total-row">
-                <span>GST ({quote.taxRate}%)</span>
-                <span>{fmt(quote.taxAmt)}</span>
               </div>
             )}
             <div className="qdoc-total-row qdoc-total-row--grand">
