@@ -233,9 +233,8 @@ export default function StudioDashboard() {
                           title="View PDF"
                         >
                           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                            <path d="M3 5h10v8H3z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
-                            <path d="M5 5V3h6v2" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
-                            <path d="M5 9h6M5 11h4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+                            <ellipse cx="8" cy="8" rx="7" ry="4.5" stroke="currentColor" strokeWidth="1.3"/>
+                            <circle cx="8" cy="8" r="2" stroke="currentColor" strokeWidth="1.3"/>
                           </svg>
                         </button>
                         <button

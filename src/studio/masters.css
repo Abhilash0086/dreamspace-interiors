@@ -1,11 +1,16 @@
 @import './studio.css';
 
-.masters { min-height: 100dvh; background: var(--bg); }
+.masters {
+  min-height: 100dvh;
+  background: var(--bg);
+  max-width: 680px;
+  margin: 0 auto;
+  position: relative;
+  padding-bottom: 80px;
+}
 
 .masters-body {
   padding: 16px;
-  max-width: 600px;
-  margin: 0 auto;
 }
 
 .masters-section {
