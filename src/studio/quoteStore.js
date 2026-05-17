@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase'
+import { loadSettings, SETTING_DEFAULTS } from './settingsStore'
 
 export async function loadQuotes() {
   const { data, error } = await supabase
@@ -63,6 +64,7 @@ export function parseArea(size, qty) {
 }
 
 export async function newBlankQuote() {
+  const settings = await loadSettings().catch(() => ({}))
   const today = new Date()
   const validity = new Date(today)
   validity.setDate(validity.getDate() + 30)
@@ -87,7 +89,7 @@ export async function newBlankQuote() {
     discountAmt: 0,
     grandTotal: 0,
     notes: '',
-    terms: `1. Given quotation is for the above mentioned products.\n2. Electrical work, electrical fittings and civil work not included.\n3. Payment: 60% advance on confirmation / 30% on/before door installation / 10% on handover.`,
+    terms: settings.default_terms ?? SETTING_DEFAULTS.default_terms,
     bankDetails: 'Account Name: Dreamspace Interiors\nBank: [Bank Name]\nAccount No: [Account Number]\nIFSC: [IFSC Code]',
   }
 }

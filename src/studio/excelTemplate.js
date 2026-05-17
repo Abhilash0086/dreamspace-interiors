@@ -39,29 +39,20 @@ function buildSheet(withExample) {
   rows.push(['ROOM', 'ITEM', 'SIZE', 'QTY', 'AREA (sqft)', 'RATE (₹)', 'TOTAL (₹)'])
 
   if (withExample) {
-    // Room 1 — Living Room (5 items)
-    rows.push(['Living Room', 'TV Unit Panelling', '14x9',  1, 126, 450,  ''])
-    rows.push(['',            'TV Unit Box',       '6x2',   1, 12,  850,  ''])
-    rows.push(['',            'TV Unit',           '5x2',   1, 10,  950,  ''])
-    rows.push(['',            'Wall Panelling',    '10x8',  1, 80,  480,  ''])
-    rows.push(['',            'False Ceiling',     '18x14', 1, 252, 85,   ''])
-
-    // Room 2 — Master Bedroom (5 items)
-    rows.push(['Master Bedroom', 'Wardrobe',           '8x8',  1, 64,  1600, ''])
-    rows.push(['',               'Cot with Headboard', '6x4',  1, 24,  950,  ''])
-    rows.push(['',               'Bedside Table',      '2x2',  2, 8,   850,  ''])
-    rows.push(['',               'Dresser',            '4x5',  1, 20,  1100, ''])
-    rows.push(['',               'False Ceiling',      '14x12',1, 168, 85,   ''])
-
-    // Room 3 — Modular Kitchen (1 item)
-    rows.push(['Modular Kitchen', 'Base Unit (Acrylic)', '10x2', 1, 20, 1800, ''])
-
-    // Miscellaneous (lump sum — only TOTAL filled)
-    rows.push(['', 'Miscellaneous', '', '', '', '', 25000])
+    // No empty rows needed between rooms — just change Room in col A
+    rows.push(['Living Room',    'TV Unit Panelling',  '14x9',  1, 126, 450,  ''])
+    rows.push(['',               'TV Unit Box',        '6x2',   1, 12,  850,  ''])
+    rows.push(['',               'TV Unit',            '5x2',   1, 10,  950,  ''])
+    rows.push(['',               'Wall Panelling',     '10x8',  1, 80,  480,  ''])
+    rows.push(['',               'False Ceiling',      '18x14', 1, 252, 85,   ''])
+    rows.push(['Master Bedroom', 'Wardrobe',           '8x8',   1, 64,  1600, ''])
+    rows.push(['',               'Cot with Headboard', '6x4',   1, 24,  950,  ''])
+    rows.push(['',               'Bedside Table',      '2x2',   2, 8,   850,  ''])
+    rows.push(['',               'Dresser',            '4x5',   1, 20,  1100, ''])
+    rows.push(['',               'False Ceiling',      '14x12', 1, 168, 85,   ''])
+    rows.push(['Modular Kitchen','Base Unit (Acrylic)', '10x2', 1, 20,  1800, ''])
+    rows.push(['',               'Miscellaneous',      '',      '','',  '',   25000])
   } else {
-    // Blank rows as placeholders
-    rows.push(['Living Room', '', '', '', '', '', ''])
-    rows.push(['', '', '', '', '', '', ''])
     rows.push(['', '', '', '', '', '', ''])
   }
 

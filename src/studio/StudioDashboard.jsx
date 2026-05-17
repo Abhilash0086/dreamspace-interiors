@@ -101,6 +101,12 @@ export default function StudioDashboard() {
           <p>{loading ? '…' : `${filtered.length} quote${filtered.length !== 1 ? 's' : ''}`}</p>
         </div>
         <div className="studio-header__actions">
+          <button className="studio-icon-btn" title="Masters" onClick={() => navigate('/studio/masters')}>
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <circle cx="9" cy="9" r="2.5" stroke="currentColor" strokeWidth="1.5"/>
+              <path d="M9 1.5v2M9 14.5v2M1.5 9h2M14.5 9h2M3.6 3.6l1.4 1.4M13 13l1.4 1.4M3.6 14.4L5 13M13 5l1.4-1.4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+          </button>
           <div className="template-menu" ref={templateMenuRef}>
             <button
               className="studio-icon-btn"

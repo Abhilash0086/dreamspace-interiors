@@ -4,12 +4,13 @@ import {
   newBlankQuote, getQuote, upsertQuote, calcTotals, parseArea,
   PROJECT_TYPES, ITEM_TYPES, ROOM_TYPES
 } from './quoteStore'
+import { loadSettings, SETTING_DEFAULTS } from './settingsStore'
 import './studio.css'
 
 const uid = () => Math.random().toString(36).slice(2, 9)
 const fmt = (n) => '₹' + Number(n || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })
 
-function ItemRow({ item, onChange, onDelete }) {
+function ItemRow({ item, onChange, onDelete, hideRoom = false, itemTypes = [], roomTypes = [] }) {
   const isMisc = item.itemType === 'Miscellaneous'
 
   const update = (field, val) => {
@@ -35,36 +36,52 @@ function ItemRow({ item, onChange, onDelete }) {
 
   return (
     <div className={`item-row${isMisc ? ' item-row--misc' : ''}`}>
-      <div className="item-row__room-row">
-        <svg width="13" height="13" viewBox="0 0 13 13" fill="none" className="item-row__room-icon">
-          <path d="M6.5 1.5L1 5v7h4V8.5h3V12h4V5L6.5 1.5z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
-        </svg>
-        <select
-          className="item-row__room"
-          value={item.room || ''}
-          onChange={(e) => update('room', e.target.value)}
-        >
-          <option value="">Room / Area</option>
-          {ROOM_TYPES.map((r) => <option key={r} value={r}>{r}</option>)}
-        </select>
-        <button className="item-row__delete" onClick={onDelete} type="button" aria-label="Delete item">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M2.5 4h9M5 4V2.5h4V4M5 7v3.5M9 7v3.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
-            <path d="M3.5 4l.6 7h5.8l.6-7" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
+      {!hideRoom && (
+        <div className="item-row__room-row">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none" className="item-row__room-icon">
+            <path d="M6.5 1.5L1 5v7h4V8.5h3V12h4V5L6.5 1.5z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
           </svg>
-        </button>
-      </div>
+          <select
+            className="item-row__room"
+            value={item.room || ''}
+            onChange={(e) => update('room', e.target.value)}
+          >
+            <option value="">Room / Area</option>
+            {roomTypes.map((r) => <option key={r} value={r}>{r}</option>)}
+            {item.room && !roomTypes.includes(item.room) && (
+              <option value={item.room}>{item.room}</option>
+            )}
+          </select>
+          <button className="item-row__delete" onClick={onDelete} type="button" aria-label="Delete item">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2.5 4h9M5 4V2.5h4V4M5 7v3.5M9 7v3.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+              <path d="M3.5 4l.6 7h5.8l.6-7" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      )}
 
-      <div className="item-row__type-row">
+      <div className="item-row__type-row" style={hideRoom ? { display: 'flex', gap: 8, alignItems: 'center' } : {}}>
         <select
           className={`item-row__item-type ${!item.itemType ? 'placeholder' : ''}`}
           value={item.itemType || ''}
           onChange={(e) => update('itemType', e.target.value)}
         >
           <option value="">— Select item —</option>
-          {ITEM_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+          {itemTypes.map((t) => <option key={t} value={t}>{t}</option>)}
+          {item.itemType && item.itemType !== 'Miscellaneous' && !itemTypes.includes(item.itemType) && (
+            <option value={item.itemType}>{item.itemType}</option>
+          )}
           <option value="Miscellaneous">Miscellaneous (lump sum)</option>
         </select>
+        {hideRoom && (
+          <button className="item-row__delete" onClick={onDelete} type="button" aria-label="Delete item">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2.5 4h9M5 4V2.5h4V4M5 7v3.5M9 7v3.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+              <path d="M3.5 4l.6 7h5.8l.6-7" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        )}
       </div>
 
       {isMisc ? (
@@ -132,16 +149,19 @@ export default function QuoteForm() {
   const [quote, setQuote] = useState(null)
   const [saving, setSaving] = useState(false)
   const [activeSection, setActiveSection] = useState('client')
+  const [roomTypes, setRoomTypes] = useState(ROOM_TYPES)
+  const [itemTypes, setItemTypes] = useState(ITEM_TYPES)
 
   useEffect(() => {
     const init = async () => {
-      if (isNew) {
-        setQuote(await newBlankQuote())
-      } else {
-        const existing = await getQuote(id)
-        if (!existing) navigate('/studio')
-        else setQuote(existing)
-      }
+      const [q, settings] = await Promise.all([
+        isNew ? newBlankQuote() : getQuote(id),
+        loadSettings().catch(() => ({})),
+      ])
+      if (!isNew && !q) { navigate('/studio'); return }
+      setQuote(q)
+      if (settings.room_types?.length) setRoomTypes(settings.room_types)
+      if (settings.item_types?.length) setItemTypes(settings.item_types)
     }
     init()
   }, [id])
@@ -161,23 +181,50 @@ export default function QuoteForm() {
     })
   }, [])
 
-  const addItem = () => {
+  const updateItem = (itemId, updated) => {
+    setQuote((q) => {
+      const items = q.items.map((it) => it.id === itemId ? updated : it)
+      return { ...q, items, ...calcTotals(items, q.discountPct) }
+    })
+  }
+
+  const deleteItem = (itemId) => {
+    setQuote((q) => {
+      const items = q.items.filter((it) => it.id !== itemId)
+      return { ...q, items, ...calcTotals(items, q.discountPct) }
+    })
+  }
+
+  const addRoom = () => {
     setQuote((q) => {
       const items = [...q.items, { id: uid(), room: '', itemType: '', size: '', qty: '', area: 0, rate: '', amount: 0 }]
       return { ...q, items, ...calcTotals(items, q.discountPct) }
     })
   }
 
-  const updateItem = (idx, updated) => {
+  const addItemToRoom = (room, lastItemId) => {
     setQuote((q) => {
-      const items = q.items.map((it, i) => i === idx ? updated : it)
+      const lastIdx = q.items.findIndex((it) => it.id === lastItemId)
+      const newItem = { id: uid(), room, itemType: '', size: '', qty: '', area: 0, rate: '', amount: 0 }
+      const items = lastIdx >= 0
+        ? [...q.items.slice(0, lastIdx + 1), newItem, ...q.items.slice(lastIdx + 1)]
+        : [...q.items, newItem]
       return { ...q, items, ...calcTotals(items, q.discountPct) }
     })
   }
 
-  const deleteItem = (idx) => {
+  const changeRoomHeader = (itemIds, newRoom) => {
+    const idSet = new Set(itemIds)
     setQuote((q) => {
-      const items = q.items.filter((_, i) => i !== idx)
+      const items = q.items.map((it) => idSet.has(it.id) ? { ...it, room: newRoom } : it)
+      return { ...q, items, ...calcTotals(items, q.discountPct) }
+    })
+  }
+
+  const deleteRoom = (itemIds) => {
+    const idSet = new Set(itemIds)
+    setQuote((q) => {
+      const items = q.items.filter((it) => !idSet.has(it.id))
       return { ...q, items, ...calcTotals(items, q.discountPct) }
     })
   }
@@ -264,14 +311,30 @@ export default function QuoteForm() {
               </div>
             </div>
             <div className="form-divider">Client Information</div>
-            <div className="form-field">
-              <label>Client Name *</label>
-              <input placeholder="e.g. Rajkamal's Home" value={quote.client.name} onChange={(e) => set('client.name', e.target.value)} />
+            <div className="form-row">
+              <div className="form-field">
+                <label>Salutation</label>
+                <select value={quote.client.salutation || ''} onChange={(e) => set('client.salutation', e.target.value)}>
+                  <option value="">—</option>
+                  <option>Mr.</option>
+                  <option>Mrs.</option>
+                  <option>Ms.</option>
+                  <option>Dr.</option>
+                  <option>Prof.</option>
+                </select>
+              </div>
+              <div className="form-field">
+                <label>Client Name *</label>
+                <input placeholder="Full name" value={quote.client.name} onChange={(e) => set('client.name', e.target.value)} />
+              </div>
             </div>
             <div className="form-row">
               <div className="form-field">
                 <label>Phone</label>
-                <input type="tel" inputMode="tel" placeholder="+91 XXXXX XXXXX" value={quote.client.phone} onChange={(e) => set('client.phone', e.target.value)} />
+                <div className="input-prefix-wrap">
+                  <span className="input-prefix">+91</span>
+                  <input type="tel" inputMode="tel" placeholder="XXXXX XXXXX" value={quote.client.phone} onChange={(e) => set('client.phone', e.target.value)} />
+                </div>
               </div>
               <div className="form-field">
                 <label>Email</label>
@@ -304,16 +367,83 @@ export default function QuoteForm() {
         {activeSection === 'items' && (
           <div className="studio-section">
             {quote.items.length === 0 && (
-              <div className="items-empty"><p>No items yet. Tap below to add.</p></div>
+              <div className="items-empty"><p>No rooms yet. Tap below to add a room.</p></div>
             )}
-            {quote.items.map((item, idx) => (
-              <ItemRow key={item.id} item={item} onChange={(u) => updateItem(idx, u)} onDelete={() => deleteItem(idx)} />
-            ))}
-            <button className="add-item-btn" onClick={addItem} type="button">
+            {(() => {
+              const groups = []
+              quote.items.forEach((item) => {
+                const room = item.room || ''
+                if (!groups.length || groups[groups.length - 1].room !== room) {
+                  groups.push({ room, key: item.id, items: [item] })
+                } else {
+                  groups[groups.length - 1].items.push(item)
+                }
+              })
+              return groups.map((group) => {
+                const itemIds = group.items.map((it) => it.id)
+                const lastItemId = itemIds[itemIds.length - 1]
+                return (
+                  <div key={group.key} className="room-section">
+                    <div className="room-section__header">
+                      <svg width="13" height="13" viewBox="0 0 13 13" fill="none" className="room-section__icon">
+                        <path d="M6.5 1.5L1 5v7h4V8.5h3V12h4V5L6.5 1.5z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
+                      </svg>
+                      <select
+                        className="room-section__room-select"
+                        value={group.room}
+                        onChange={(e) => changeRoomHeader(itemIds, e.target.value)}
+                      >
+                        <option value="">— Select Room / Area —</option>
+                        {roomTypes.map((r) => <option key={r} value={r}>{r}</option>)}
+                        {group.room && !roomTypes.includes(group.room) && (
+                          <option value={group.room}>{group.room}</option>
+                        )}
+                      </select>
+                      <button
+                        className="room-section__delete-room"
+                        type="button"
+                        title="Remove room"
+                        onClick={() => deleteRoom(itemIds)}
+                      >
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                          <path d="M2.5 4h9M5 4V2.5h4V4M5 7v3.5M9 7v3.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+                          <path d="M3.5 4l.6 7h5.8l.6-7" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
+                        </svg>
+                      </button>
+                    </div>
+                    <div className="room-section__items">
+                      {group.items.map((item) => (
+                        <ItemRow
+                          key={item.id}
+                          item={item}
+                          onChange={(u) => updateItem(item.id, u)}
+                          onDelete={() => deleteItem(item.id)}
+                          hideRoom={true}
+                          itemTypes={itemTypes}
+                          roomTypes={roomTypes}
+                        />
+                      ))}
+                    </div>
+                    <button
+                      className="room-section__add-item"
+                      type="button"
+                      onClick={() => addItemToRoom(group.room, lastItemId)}
+                    >
+                      <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                        <path d="M6.5 2v9M2 6.5h9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+                      </svg>
+                      Add item
+                    </button>
+                  </div>
+                )
+              })
+            })()}
+            <button className="add-room-btn" onClick={addRoom} type="button">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M8 3v10M3 8h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                <path d="M8 1L1 6v9h5V9.5h4V15h5V6L8 1z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+                <path d="M8 9v4M6 11h4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
               </svg>
-              Add Item
+              Add Room
             </button>
             {quote.items.length > 0 && (
               <div className="items-subtotal">Subtotal: <strong>{fmt(quote.subtotal)}</strong></div>

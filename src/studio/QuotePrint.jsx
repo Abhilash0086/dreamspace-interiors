@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { getQuote, STATUS_META, upsertQuote } from './quoteStore'
+import { loadSettings, SETTING_DEFAULTS } from './settingsStore'
 import './print.css'
 
 const fmt = (n) => '₹' + Number(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -10,24 +11,30 @@ export default function QuotePrint() {
   const { id } = useParams()
   const navigate = useNavigate()
   const [quote, setQuote] = useState(null)
+  const [company, setCompany] = useState(SETTING_DEFAULTS.company)
 
   useEffect(() => {
-    getQuote(id).then((q) => {
+    Promise.all([
+      getQuote(id),
+      loadSettings().catch(() => ({})),
+    ]).then(([q, s]) => {
       if (!q) navigate('/studio')
       else setQuote(q)
+      if (s.company) setCompany(s.company)
     })
   }, [id])
 
   useEffect(() => {
     if (!quote) return
+    const salutation = quote.client?.salutation ? quote.client.salutation.replace('.', '') + '_' : ''
     const clientName = (quote.client?.name || 'Client').replace(/\s+/g, '_')
-    document.title = `${clientName}_Quotation`
+    document.title = `${salutation}${clientName}_Quotation`
     return () => { document.title = 'Dreamspace Interiors' }
   }, [quote])
 
   const handleWhatsApp = () => {
     if (!quote) return
-    const msg = `Hello ${quote.client?.name || ''},\n\nPlease find your interior design quotation from *Dreamspace Interiors*.\n\n*Quote #:* ${quote.id}\n*Date:* ${fmtDate(quote.date)}\n*Valid Until:* ${fmtDate(quote.validUntil)}\n*Grand Total:* ${fmt(quote.grandTotal)}\n\nThank you for choosing Dreamspace Interiors.`
+    const msg = `Hello ${quote.client?.name || ''},\n\nPlease find your interior design quotation from *${company.name}*.\n\n*Quote #:* ${quote.id}\n*Date:* ${fmtDate(quote.date)}\n*Valid Until:* ${fmtDate(quote.validUntil)}\n*Grand Total:* ${fmt(quote.grandTotal)}\n\nThank you for choosing ${company.name}.`
     const phone = quote.client?.phone?.replace(/\D/g, '') || ''
     window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, '_blank')
   }
@@ -35,7 +42,7 @@ export default function QuotePrint() {
   const handleEmail = () => {
     if (!quote) return
     const subject = encodeURIComponent(`Quotation ${quote.id} — Dreamspace Interiors`)
-    const body = encodeURIComponent(`Dear ${quote.client?.name || ''},\n\nPlease find attached your interior design quotation from Dreamspace Interiors.\n\nQuote #: ${quote.id}\nDate: ${fmtDate(quote.date)}\nValid Until: ${fmtDate(quote.validUntil)}\nGrand Total: ${fmt(quote.grandTotal)}\n\nThank you for choosing Dreamspace Interiors.`)
+    const body = encodeURIComponent(`Dear ${quote.client?.name || ''},\n\nPlease find attached your interior design quotation from ${company.name}.\n\nQuote #: ${quote.id}\nDate: ${fmtDate(quote.date)}\nValid Until: ${fmtDate(quote.validUntil)}\nGrand Total: ${fmt(quote.grandTotal)}\n\nThank you for choosing ${company.name}.`)
     window.location.href = `mailto:${quote.client.email}?subject=${subject}&body=${body}`
   }
 
@@ -108,8 +115,8 @@ export default function QuotePrint() {
         {/* Header */}
         <div className="qdoc-header">
           <div className="qdoc-header__brand">
-            <div className="qdoc-header__company">Dreamspace Interiors</div>
-            <div className="qdoc-header__tagline">Luxury in Every Detail</div>
+            <div className="qdoc-header__company">{company.name}</div>
+            <div className="qdoc-header__tagline">{company.tagline}</div>
           </div>
           <div className="qdoc-header__meta">
             <h1 className="qdoc-title">QUOTATION</h1>
@@ -131,11 +138,13 @@ export default function QuotePrint() {
         <div className="qdoc-parties">
           <div className="qdoc-party">
             <div className="qdoc-party__label">FROM</div>
-            <div className="qdoc-party__name">Dreamspace Interiors</div>
+            <div className="qdoc-party__name">{company.name}</div>
           </div>
           <div className="qdoc-party qdoc-party--to">
             <div className="qdoc-party__label">TO</div>
-            <div className="qdoc-party__name">{quote.client?.name || '—'}</div>
+            <div className="qdoc-party__name">
+              {[quote.client?.salutation, quote.client?.name].filter(Boolean).join(' ') || '—'}
+            </div>
             {quote.client?.phone && <div className="qdoc-party__detail">{quote.client.phone}</div>}
             {quote.client?.email && <div className="qdoc-party__detail">{quote.client.email}</div>}
             {quote.client?.address && (
@@ -295,19 +304,19 @@ export default function QuotePrint() {
           <div className="qdoc-signature__block">
             <div className="qdoc-signature__line" />
             <div className="qdoc-signature__name">Authorized Signature</div>
-            <div className="qdoc-signature__co">Dreamspace Interiors</div>
+            <div className="qdoc-signature__co">{company.name}</div>
           </div>
           <div className="qdoc-signature__block qdoc-signature__block--client">
             <div className="qdoc-signature__line" />
             <div className="qdoc-signature__name">Client Signature</div>
-            <div className="qdoc-signature__co">{quote.client?.name || ''}</div>
+            <div className="qdoc-signature__co">{[quote.client?.salutation, quote.client?.name].filter(Boolean).join(' ')}</div>
           </div>
         </div>
 
         {/* Footer */}
         <div className="qdoc-footer">
-          <span>Dreamspace Interiors</span>
-          <span>@sandboxinterior</span>
+          <span>{company.name}</span>
+          <span>{company.social}</span>
         </div>
       </div>
     </>
