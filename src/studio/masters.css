@@ -2,7 +2,7 @@
 
 .masters {
   min-height: 100dvh;
-  background: var(--bg);
+  background: #F5F4F2;
   max-width: 680px;
   margin: 0 auto;
   position: relative;
