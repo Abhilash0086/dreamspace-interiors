@@ -1160,14 +1160,6 @@
 .item-row__field--rate  { grid-column: 2; }
 .item-row__field--readonly { grid-column: 1 / -1; }
 
-.item-row__rate-hint {
-  display: block;
-  font-size: 0.72rem;
-  color: var(--orange);
-  font-weight: 600;
-  margin-top: 3px;
-  letter-spacing: 0.01em;
-}
 
 .item-row__area-display {
   display: block;

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
-  newBlankQuote, getQuote, upsertQuote, calcTotals, parseArea,
+  newBlankQuote, getQuote, upsertQuote, calcTotals, calcCOP, parseArea,
   PROJECT_TYPES, ITEM_TYPES, ROOM_TYPES
 } from './quoteStore'
 import { loadSettings, SETTING_DEFAULTS } from './settingsStore'
@@ -87,22 +87,22 @@ function ItemRow({ item, onChange, onDelete, hideRoom = false, itemTypes = [], r
       {!isMisc && (
         <div className="item-row__meta-row">
           <select
-            className={`item-row__category ${!item.category ? 'placeholder' : ''}`}
+            className={`item-row__category ${!item.category ? 'placeholder' : ''} ${!item.category ? 'item-row__select--error' : ''}`}
             value={item.category || ''}
             onChange={(e) => update('category', e.target.value)}
           >
-            <option value="">— Category —</option>
+            <option value="">— Category * —</option>
             {categoryTypes.map((c) => <option key={c} value={c}>{c}</option>)}
             {item.category && !categoryTypes.includes(item.category) && (
               <option value={item.category}>{item.category}</option>
             )}
           </select>
           <select
-            className={`item-row__brand ${!item.brand ? 'placeholder' : ''}`}
+            className={`item-row__brand ${!item.brand ? 'placeholder' : ''} ${!item.brand ? 'item-row__select--error' : ''}`}
             value={item.brand || ''}
             onChange={(e) => update('brand', e.target.value)}
           >
-            <option value="">— Brand —</option>
+            <option value="">— Brand * —</option>
             {brandTypes.map((b) => <option key={b} value={b}>{b}</option>)}
           </select>
         </div>
@@ -150,15 +150,6 @@ function ItemRow({ item, onChange, onDelete, hideRoom = false, itemTypes = [], r
               value={item.rate || ''} placeholder="0"
               onChange={(e) => update('rate', e.target.value)}
             />
-            {(() => {
-              const guide = item.category ? rateGuide[item.category] : null
-              const hint = guide && item.brand === 'Brand' ? guide.brand
-                : guide && item.brand === 'Non Brand' ? guide.nonBrand
-                : null
-              return hint && hint !== 'Nil'
-                ? <span className="item-row__rate-hint">Suggested: {hint}</span>
-                : null
-            })()}
           </div>
           <div className="item-row__field item-row__field--amount item-row__field--readonly">
             <label>Total (₹)</label>
@@ -181,6 +172,7 @@ export default function QuoteForm() {
   const isNew = id === 'new'
   const [quote, setQuote] = useState(null)
   const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState('')
   const [activeSection, setActiveSection] = useState('client')
   const [roomTypes, setRoomTypes] = useState(ROOM_TYPES)
   const [itemTypes, setItemTypes] = useState(ITEM_TYPES)
@@ -281,11 +273,21 @@ export default function QuoteForm() {
   }
 
   const handleSave = async (status) => {
+    // Validate: all non-misc items must have category and brand
+    const nonMisc = quote.items.filter((i) => i.itemType !== 'Miscellaneous')
+    const missing = nonMisc.filter((i) => !i.category || !i.brand)
+    if (missing.length > 0) {
+      setActiveSection('items')
+      setSaveError(`${missing.length} item${missing.length > 1 ? 's are' : ' is'} missing Category or Brand — please fill them before saving.`)
+      return
+    }
+    setSaveError('')
     setSaving(true)
     try {
-      const toSave = { ...quote, status: status || quote.status }
+      const cop = calcCOP(quote.items, rateGuide)
+      const toSave = { ...quote, status: status || quote.status, cop }
       await upsertQuote(toSave)
-      navigate('/studio')
+      navigate(`/studio/${toSave.id}/summary`)
     } finally {
       setSaving(false)
     }
@@ -312,6 +314,17 @@ export default function QuoteForm() {
           {saving ? '…' : 'Save'}
         </button>
       </header>
+
+      {saveError && (
+        <div className="studio-save-error">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+            <circle cx="7.5" cy="7.5" r="6" stroke="currentColor" strokeWidth="1.4"/>
+            <path d="M7.5 5v3.5M7.5 10.5v.3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+          </svg>
+          {saveError}
+          <button onClick={() => setSaveError('')}>✕</button>
+        </div>
+      )}
 
       <div className="studio-tabs">
         {sections.map((s) => (
@@ -558,7 +571,8 @@ export default function QuoteForm() {
             <div className="final-actions">
               <button className="final-btn final-btn--draft" onClick={() => handleSave('draft')}>Save as Draft</button>
               <button className="final-btn final-btn--preview" onClick={async () => {
-                await upsertQuote(quote)
+                const cop = calcCOP(quote.items, rateGuide)
+                await upsertQuote({ ...quote, cop })
                 navigate(`/studio/${quote.id}/print`)
               }}>
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">

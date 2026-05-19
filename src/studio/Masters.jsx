@@ -117,6 +117,12 @@ export default function Masters() {
           <h1>Masters</h1>
           <p>Manage default data</p>
         </div>
+        <button className="studio-icon-btn" title="Cost of Production" onClick={() => navigate('/studio/masters/cop')}>
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M9 2L2 6.5v10h14v-10L9 2z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+            <path d="M6 16.5V11h6v5.5" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
+          </svg>
+        </button>
       </header>
 
       <div className="studio-tabs">

@@ -44,6 +44,30 @@ export async function getNextQuoteNumber() {
   return `SBI-${year}-${String(next).padStart(3, '0')}`
 }
 
+function parseRateLower(rateStr) {
+  if (!rateStr || String(rateStr).toLowerCase() === 'nil') return 0
+  const m = String(rateStr).match(/^(\d+\.?\d*)/)
+  return m ? parseFloat(m[1]) : 0
+}
+
+export function calcCOP(items, rateGuide = {}) {
+  let total = 0
+  const copItems = items.map((item) => {
+    if (item.itemType === 'Miscellaneous') return { id: item.id, copRate: 0, copAmount: 0 }
+    const guide = rateGuide[item.category]
+    const rateStr = item.brand === 'Brand'     ? guide?.brand
+      : item.brand === 'Non Brand' ? guide?.nonBrand
+      : null
+    const copRate = parseRateLower(rateStr)
+    const copAmount = item.area > 0
+      ? +(item.area * copRate).toFixed(2)
+      : +((parseFloat(item.qty) || 1) * copRate).toFixed(2)
+    total += copAmount
+    return { id: item.id, copRate, copAmount }
+  })
+  return { items: copItems, total: +total.toFixed(2) }
+}
+
 export function calcTotals(items, discountPct) {
   const subtotal = items.reduce((s, i) => s + (parseFloat(i.amount) || 0), 0)
   const discountAmt = (subtotal * (parseFloat(discountPct) || 0)) / 100

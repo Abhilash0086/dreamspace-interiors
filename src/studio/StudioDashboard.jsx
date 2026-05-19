@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { loadQuotes, deleteQuote, STATUS_META, calcTotals, newBlankQuote, upsertQuote } from './quoteStore'
+import { loadQuotes, deleteQuote, STATUS_META, calcTotals, calcCOP, newBlankQuote, upsertQuote } from './quoteStore'
+import { loadSettings, SETTING_DEFAULTS } from './settingsStore'
 import { parseQuoteExcel } from './excelImport'
 import { downloadTemplate, downloadTemplateWithExample } from './excelTemplate'
 import './studio.css'
@@ -52,7 +53,7 @@ export default function StudioDashboard() {
   const closeImportModal = () => {
     const qid = importModal?.quoteId
     setImportModal(null)
-    if (qid) navigate(`/studio/${qid}`)
+    if (qid) navigate(`/studio/${qid}/summary`)
   }
 
   const handleImport = async (e) => {
@@ -61,10 +62,15 @@ export default function StudioDashboard() {
     e.target.value = ''
     setImporting(true)
     try {
-      const parsed = await parseQuoteExcel(file)
+      const [parsed, settings] = await Promise.all([
+        parseQuoteExcel(file),
+        loadSettings().catch(() => ({})),
+      ])
+      const rateGuide = settings.rate_guide ?? SETTING_DEFAULTS.rate_guide
       const base = await newBlankQuote()
       const items = parsed.items
       const totals = calcTotals(items, 0)
+      const cop = calcCOP(items, rateGuide)
       const quote = {
         ...base,
         client: { ...base.client, ...parsed.client },
@@ -75,6 +81,7 @@ export default function StudioDashboard() {
         comments: parsed.notes.length ? parsed.notes : base.comments,
         terms: parsed.termLines.length ? parsed.termLines.join('\n') : base.terms,
         ...totals,
+        cop,
       }
       await upsertQuote(quote)
       if (parsed.warnings?.length) {
@@ -85,7 +92,7 @@ export default function StudioDashboard() {
           quoteId: quote.id,
         })
       } else {
-        navigate(`/studio/${quote.id}`)
+        navigate(`/studio/${quote.id}/summary`)
       }
     } catch (err) {
       setImportModal({
