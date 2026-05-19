@@ -14,7 +14,7 @@ export default function StudioDashboard() {
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const [importing, setImporting] = useState(false)
-  const [importError, setImportError] = useState('')
+  const [importModal, setImportModal] = useState(null) // { type, title, messages, quoteId? }
   const [templateMenuOpen, setTemplateMenuOpen] = useState(false)
   const fileInputRef = useRef(null)
   const templateMenuRef = useRef(null)
@@ -49,17 +49,22 @@ export default function StudioDashboard() {
     return matchStatus && matchSearch
   })
 
+  const closeImportModal = () => {
+    const qid = importModal?.quoteId
+    setImportModal(null)
+    if (qid) navigate(`/studio/${qid}`)
+  }
+
   const handleImport = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
     e.target.value = ''
     setImporting(true)
-    setImportError('')
     try {
       const parsed = await parseQuoteExcel(file)
       const base = await newBlankQuote()
       const items = parsed.items
-      const totals = calcTotals(items, 0, 0)
+      const totals = calcTotals(items, 0)
       const quote = {
         ...base,
         client: { ...base.client, ...parsed.client },
@@ -72,9 +77,22 @@ export default function StudioDashboard() {
         ...totals,
       }
       await upsertQuote(quote)
-      navigate(`/studio/${quote.id}`)
+      if (parsed.warnings?.length) {
+        setImportModal({
+          type: 'warning',
+          title: `Imported with ${parsed.warnings.length} warning${parsed.warnings.length > 1 ? 's' : ''}`,
+          messages: parsed.warnings,
+          quoteId: quote.id,
+        })
+      } else {
+        navigate(`/studio/${quote.id}`)
+      }
     } catch (err) {
-      setImportError(err.message || 'Failed to import. Check the file format.')
+      setImportModal({
+        type: 'error',
+        title: 'Import Failed',
+        messages: err.message ? err.message.split('\n') : ['Failed to import. Check the file format.'],
+      })
     } finally {
       setImporting(false)
     }
@@ -152,11 +170,37 @@ export default function StudioDashboard() {
           </button>
         </div>
       </header>
-      {importError && (
-        <div className="studio-import-error">{importError} <button onClick={() => setImportError('')}>✕</button></div>
-      )}
       {importing && (
         <div className="studio-import-banner">Importing Excel… <div className="studio-spinner" style={{ width: 16, height: 16, borderWidth: 2 }} /></div>
+      )}
+
+      {importModal && (
+        <div className="import-modal-overlay" onClick={closeImportModal}>
+          <div className="import-modal" onClick={(e) => e.stopPropagation()}>
+            <div className={`import-modal__header import-modal__header--${importModal.type}`}>
+              {importModal.type === 'error' ? (
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                  <circle cx="11" cy="11" r="9" stroke="currentColor" strokeWidth="1.6"/>
+                  <path d="M11 7v5M11 15v.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+                </svg>
+              ) : (
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                  <circle cx="11" cy="11" r="9" stroke="currentColor" strokeWidth="1.6"/>
+                  <path d="M11 7v5M11 15v.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+                </svg>
+              )}
+              <span>{importModal.title}</span>
+            </div>
+            <ul className="import-modal__list">
+              {importModal.messages.map((m, i) => (
+                <li key={i}>{m}</li>
+              ))}
+            </ul>
+            <button className="import-modal__btn" onClick={closeImportModal}>
+              {importModal.quoteId ? 'Continue to Quote →' : 'Close'}
+            </button>
+          </div>
+        </div>
       )}
 
       <div className="studio-toolbar">
