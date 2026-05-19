@@ -158,7 +158,7 @@ export function parseQuoteExcel(file) {
           }
           if (row.a) lastRoom = row.a
 
-          const isMisc = !itemType && totalVal > 0
+          const isMisc = (!itemType && totalVal > 0) || itemType?.toLowerCase() === 'miscellaneous'
           const rowLabel = itemType ? `"${itemType}"` : `Row ${i + 1}`
 
           if (!isMisc) {
