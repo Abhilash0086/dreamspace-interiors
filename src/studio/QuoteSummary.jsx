@@ -24,10 +24,13 @@ export default function QuoteSummary() {
     </div>
   )
 
-  const grandTotal = quote.grandTotal || 0
-  const copTotal   = quote.cop?.total || 0
-  const margin     = grandTotal > 0 ? ((grandTotal - copTotal) / grandTotal * 100) : 0
-  const profit     = grandTotal - copTotal
+  const grandTotal  = quote.grandTotal || 0
+  const copMin      = quote.cop?.total    || 0
+  const copMax      = quote.cop?.totalMax ?? copMin
+  const marginMin   = grandTotal > 0 ? ((grandTotal - copMax) / grandTotal * 100) : 0
+  const marginMax   = grandTotal > 0 ? ((grandTotal - copMin) / grandTotal * 100) : 0
+  const profitMin   = grandTotal - copMax
+  const profitMax   = grandTotal - copMin
   const clientName = [quote.client?.salutation, quote.client?.name].filter(Boolean).join(' ') || 'Client'
 
   return (
@@ -70,7 +73,9 @@ export default function QuoteSummary() {
               </svg>
             </div>
             <div className="summary-card__label">Cost of Production</div>
-            <div className="summary-card__amount">{fmt(copTotal)}</div>
+            <div className="summary-card__amount summary-card__amount--range">
+              {copMin === copMax ? fmt(copMin) : <>{fmt(copMin)}<span className="summary-card__range-sep"> – </span>{fmt(copMax)}</>}
+            </div>
             <div className="summary-card__sub">internal estimate</div>
           </div>
         </div>
@@ -79,12 +84,14 @@ export default function QuoteSummary() {
         <div className="summary-margin">
           <div className="summary-margin__row">
             <span>Gross Profit</span>
-            <strong>{fmt(profit)}</strong>
+            <strong>
+              {profitMin === profitMax ? fmt(profitMin) : `${fmt(profitMin)} – ${fmt(profitMax)}`}
+            </strong>
           </div>
           <div className="summary-margin__row">
             <span>Margin</span>
-            <strong className={margin < 20 ? 'summary-margin__pct--low' : 'summary-margin__pct--ok'}>
-              {margin.toFixed(1)}%
+            <strong className={marginMax < 20 ? 'summary-margin__pct--low' : 'summary-margin__pct--ok'}>
+              {marginMin === marginMax ? `${marginMax.toFixed(1)}%` : `${marginMin.toFixed(1)}% – ${marginMax.toFixed(1)}%`}
             </strong>
           </div>
         </div>

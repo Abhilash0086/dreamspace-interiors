@@ -89,6 +89,15 @@
   line-height: 1.1;
 }
 
+.summary-card__amount--range {
+  font-size: 1.1rem;
+}
+
+.summary-card__range-sep {
+  color: var(--text-light);
+  font-weight: 400;
+}
+
 .summary-card__sub {
   font-size: 0.75rem;
   color: var(--text-light);

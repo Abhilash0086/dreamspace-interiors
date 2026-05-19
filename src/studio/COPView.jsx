@@ -30,9 +30,11 @@ export default function COPView() {
     )
   })
 
-  const totalCOP = filtered.reduce((s, q) => s + (q.cop?.total || 0), 0)
-  const totalQuote = filtered.reduce((s, q) => s + (q.grandTotal || 0), 0)
-  const overallMargin = totalQuote > 0 ? ((totalQuote - totalCOP) / totalQuote * 100) : 0
+  const totalCOPMin  = filtered.reduce((s, q) => s + (q.cop?.total    || 0), 0)
+  const totalCOPMax  = filtered.reduce((s, q) => s + (q.cop?.totalMax ?? q.cop?.total ?? 0), 0)
+  const totalQuote   = filtered.reduce((s, q) => s + (q.grandTotal || 0), 0)
+  const overallMarginMin = totalQuote > 0 ? ((totalQuote - totalCOPMax) / totalQuote * 100) : 0
+  const overallMarginMax = totalQuote > 0 ? ((totalQuote - totalCOPMin) / totalQuote * 100) : 0
 
   return (
     <div className="cop-view">
@@ -56,12 +58,16 @@ export default function COPView() {
           </div>
           <div className="cop-summary-strip__item">
             <span>Total COP</span>
-            <strong>{fmt(totalCOP)}</strong>
+            <strong>
+              {totalCOPMin === totalCOPMax ? fmt(totalCOPMin) : `${fmt(totalCOPMin)} – ${fmt(totalCOPMax)}`}
+            </strong>
           </div>
           <div className="cop-summary-strip__item">
-            <span>Avg Margin</span>
-            <strong className={overallMargin < 20 ? 'cop-margin--low' : 'cop-margin--ok'}>
-              {overallMargin.toFixed(1)}%
+            <span>Margin Range</span>
+            <strong className={overallMarginMax < 20 ? 'cop-margin--low' : 'cop-margin--ok'}>
+              {overallMarginMin === overallMarginMax
+                ? `${overallMarginMax.toFixed(1)}%`
+                : `${overallMarginMin.toFixed(1)}–${overallMarginMax.toFixed(1)}%`}
             </strong>
           </div>
         </div>
@@ -95,10 +101,13 @@ export default function COPView() {
       ) : (
         <div className="cop-list">
           {filtered.map((q) => {
-            const copTotal = q.cop?.total || 0
+            const copMin   = q.cop?.total    || 0
+            const copMax   = q.cop?.totalMax ?? copMin
             const grandTotal = q.grandTotal || 0
-            const margin = grandTotal > 0 ? ((grandTotal - copTotal) / grandTotal * 100) : 0
-            const profit = grandTotal - copTotal
+            const marginMin  = grandTotal > 0 ? ((grandTotal - copMax) / grandTotal * 100) : 0
+            const marginMax  = grandTotal > 0 ? ((grandTotal - copMin) / grandTotal * 100) : 0
+            const profitMin  = grandTotal - copMax
+            const profitMax  = grandTotal - copMin
             const clientName = [q.client?.salutation, q.client?.name].filter(Boolean).join(' ') || 'Unnamed Client'
             const isOpen = expanded === q.id
 
@@ -111,12 +120,14 @@ export default function COPView() {
                     <span className="cop-card__date">{fmtDate(q.date)}</span>
                   </div>
                   <div className="cop-card__numbers">
-                    <div className="cop-card__margin-badge" data-low={margin < 20}>
-                      {margin.toFixed(1)}%
+                    <div className="cop-card__margin-badge" data-low={marginMax < 20}>
+                      {marginMin === marginMax ? `${marginMax.toFixed(1)}%` : `${marginMin.toFixed(1)}–${marginMax.toFixed(1)}%`}
                     </div>
                     <div className="cop-card__totals">
                       <span className="cop-card__quote-val">{fmt(grandTotal)}</span>
-                      <span className="cop-card__cop-val">COP {fmt(copTotal)}</span>
+                      <span className="cop-card__cop-val">
+                        COP {copMin === copMax ? fmt(copMin) : `${fmt(copMin)} – ${fmt(copMax)}`}
+                      </span>
                     </div>
                   </div>
                   <svg className="cop-card__chevron" width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -128,7 +139,9 @@ export default function COPView() {
                   <div className="cop-card__body">
                     <div className="cop-card__profit-row">
                       <span>Gross Profit</span>
-                      <strong>{fmt(profit)}</strong>
+                      <strong>
+                        {profitMin === profitMax ? fmt(profitMin) : `${fmt(profitMin)} – ${fmt(profitMax)}`}
+                      </strong>
                     </div>
 
                     {q.cop?.items?.length > 0 && (
@@ -139,7 +152,7 @@ export default function COPView() {
                             <th>Category</th>
                             <th>Brand</th>
                             <th>Area / Qty</th>
-                            <th>COP Rate</th>
+                            <th>COP Rate (₹)</th>
                             <th>COP Amt</th>
                           </tr>
                         </thead>
@@ -156,8 +169,16 @@ export default function COPView() {
                                 <td>{item.category || '—'}</td>
                                 <td>{item.brand || '—'}</td>
                                 <td>{item.area > 0 ? `${item.area} sqft` : item.qty}</td>
-                                <td>₹{copItem.copRate}/sqft</td>
-                                <td className="cop-items-table__amt">{fmt(copItem.copAmount)}</td>
+                                <td>
+                                  {copItem.copRate === copItem.copRateMax
+                                    ? copItem.copRate
+                                    : `${copItem.copRate}–${copItem.copRateMax}`}
+                                </td>
+                                <td className="cop-items-table__amt">
+                                  {copItem.copAmount === copItem.copAmountMax
+                                    ? fmt(copItem.copAmount)
+                                    : `${fmt(copItem.copAmount)} – ${fmt(copItem.copAmountMax)}`}
+                                </td>
                               </tr>
                             )
                           })}

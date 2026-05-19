@@ -50,22 +50,33 @@ function parseRateLower(rateStr) {
   return m ? parseFloat(m[1]) : 0
 }
 
+function parseRateUpper(rateStr) {
+  if (!rateStr || String(rateStr).toLowerCase() === 'nil') return 0
+  const range = String(rateStr).match(/(\d+\.?\d*)\s*[-–]\s*(\d+\.?\d*)/)
+  if (range) return parseFloat(range[2])
+  const single = String(rateStr).match(/^(\d+\.?\d*)/)
+  return single ? parseFloat(single[1]) : 0
+}
+
 export function calcCOP(items, rateGuide = {}) {
   let total = 0
+  let totalMax = 0
   const copItems = items.map((item) => {
-    if (item.itemType === 'Miscellaneous') return { id: item.id, copRate: 0, copAmount: 0 }
+    if (item.itemType === 'Miscellaneous') return { id: item.id, copRate: 0, copRateMax: 0, copAmount: 0, copAmountMax: 0 }
     const guide = rateGuide[item.category]
     const rateStr = item.brand === 'Brand'     ? guide?.brand
       : item.brand === 'Non Brand' ? guide?.nonBrand
       : null
-    const copRate = parseRateLower(rateStr)
-    const copAmount = item.area > 0
-      ? +(item.area * copRate).toFixed(2)
-      : +((parseFloat(item.qty) || 1) * copRate).toFixed(2)
-    total += copAmount
-    return { id: item.id, copRate, copAmount }
+    const copRate    = parseRateLower(rateStr)
+    const copRateMax = parseRateUpper(rateStr)
+    const qty = parseFloat(item.qty) || 1
+    const copAmount    = item.area > 0 ? +(item.area * copRate).toFixed(2)    : +(qty * copRate).toFixed(2)
+    const copAmountMax = item.area > 0 ? +(item.area * copRateMax).toFixed(2) : +(qty * copRateMax).toFixed(2)
+    total    += copAmount
+    totalMax += copAmountMax
+    return { id: item.id, copRate, copRateMax, copAmount, copAmountMax }
   })
-  return { items: copItems, total: +total.toFixed(2) }
+  return { items: copItems, total: +total.toFixed(2), totalMax: +totalMax.toFixed(2) }
 }
 
 export function calcTotals(items, discountPct) {
