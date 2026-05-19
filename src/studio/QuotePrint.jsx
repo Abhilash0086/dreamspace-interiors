@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { getQuote, STATUS_META, upsertQuote } from './quoteStore'
 import { loadSettings, SETTING_DEFAULTS } from './settingsStore'
@@ -12,6 +12,8 @@ export default function QuotePrint() {
   const navigate = useNavigate()
   const [quote, setQuote] = useState(null)
   const [company, setCompany] = useState(SETTING_DEFAULTS.company)
+  const [sharing, setSharing] = useState(false)
+  const docRef = useRef(null)
 
   useEffect(() => {
     Promise.all([
@@ -32,11 +34,69 @@ export default function QuotePrint() {
     return () => { document.title = 'Dreamspace Interiors' }
   }, [quote])
 
-  const handleWhatsApp = () => {
-    if (!quote) return
+  const getPdfBlob = async () => {
+    const html2pdf = (await import('html2pdf.js')).default
+    const element = docRef.current
+    const salutation = quote.client?.salutation ? quote.client.salutation.replace('.', '') + '_' : ''
+    const clientName = (quote.client?.name || 'Client').replace(/\s+/g, '_')
+    const filename = `${salutation}${clientName}_${quote.id}_Quotation.pdf`
+    const opt = {
+      margin: 0,
+      filename,
+      image: { type: 'jpeg', quality: 0.95 },
+      html2canvas: { scale: 2, useCORS: true, logging: false },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    }
+    const blob = await html2pdf().set(opt).from(element).outputPdf('blob')
+    return { blob, filename }
+  }
+
+  const handleWhatsApp = async () => {
+    if (!quote || sharing) return
     const msg = `Hello ${quote.client?.name || ''},\n\nPlease find your interior design quotation from *${company.name}*.\n\n*Quote #:* ${quote.id}\n*Date:* ${fmtDate(quote.date)}\n*Valid Until:* ${fmtDate(quote.validUntil)}\n*Grand Total:* ${fmt(quote.grandTotal)}\n\nThank you for choosing ${company.name}.`
     const phone = quote.client?.phone?.replace(/\D/g, '') || ''
+
+    // Try Web Share API with file (works on mobile — shows native share sheet with WhatsApp)
+    if (navigator.canShare) {
+      try {
+        setSharing(true)
+        const { blob, filename } = await getPdfBlob()
+        const file = new File([blob], filename, { type: 'application/pdf' })
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: `Quotation ${quote.id}`, text: msg })
+          return
+        }
+      } catch (err) {
+        if (err.name !== 'AbortError') console.error('Share failed', err)
+        return
+      } finally {
+        setSharing(false)
+      }
+    }
+
+    // Fallback (desktop): open WhatsApp text link
     window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, '_blank')
+  }
+
+  const handleDownloadPdf = async () => {
+    if (!quote || sharing) return
+    try {
+      setSharing(true)
+      const html2pdf = (await import('html2pdf.js')).default
+      const salutation = quote.client?.salutation ? quote.client.salutation.replace('.', '') + '_' : ''
+      const clientName = (quote.client?.name || 'Client').replace(/\s+/g, '_')
+      const filename = `${salutation}${clientName}_${quote.id}_Quotation.pdf`
+      const opt = {
+        margin: 0,
+        filename,
+        image: { type: 'jpeg', quality: 0.95 },
+        html2canvas: { scale: 2, useCORS: true, logging: false },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      }
+      await html2pdf().set(opt).from(docRef.current).save()
+    } finally {
+      setSharing(false)
+    }
   }
 
   const handleEmail = () => {
@@ -80,12 +140,16 @@ export default function QuotePrint() {
             </button>
           )}
           {quote.client?.phone && (
-            <button className="print-tool-btn print-tool-btn--whatsapp" onClick={handleWhatsApp}>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M13.5 2.5A6.9 6.9 0 002.3 11.2L1.5 14.5l3.4-.8A6.9 6.9 0 1013.5 2.5z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
-                <path d="M6 6.2c.1.5.5 1.5 1.3 2.3.8.8 1.8 1.2 2.3 1.3.3 0 .6-.1.8-.3l.4-.5c.1-.2 0-.4-.1-.5L9.9 8c-.1-.1-.3-.1-.5 0l-.4.3c-.5-.2-.9-.6-1.2-1.1l.3-.4c.1-.2.1-.4 0-.5L7.3 5.5c-.1-.1-.3-.2-.5-.1l-.5.4C6.1 5.9 6 6.1 6 6.2z" fill="currentColor"/>
-              </svg>
-              WhatsApp
+            <button className="print-tool-btn print-tool-btn--whatsapp" onClick={handleWhatsApp} disabled={sharing}>
+              {sharing ? (
+                <div className="studio-spinner" style={{ width: 14, height: 14, borderWidth: 2, borderColor: 'rgba(255,255,255,0.3)', borderTopColor: 'white' }} />
+              ) : (
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M13.5 2.5A6.9 6.9 0 002.3 11.2L1.5 14.5l3.4-.8A6.9 6.9 0 1013.5 2.5z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
+                  <path d="M6 6.2c.1.5.5 1.5 1.3 2.3.8.8 1.8 1.2 2.3 1.3.3 0 .6-.1.8-.3l.4-.5c.1-.2 0-.4-.1-.5L9.9 8c-.1-.1-.3-.1-.5 0l-.4.3c-.5-.2-.9-.6-1.2-1.1l.3-.4c.1-.2.1-.4 0-.5L7.3 5.5c-.1-.1-.3-.2-.5-.1l-.5.4C6.1 5.9 6 6.1 6 6.2z" fill="currentColor"/>
+                </svg>
+              )}
+              {sharing ? 'Preparing…' : 'WhatsApp'}
             </button>
           )}
           {quote.client?.email && (
@@ -97,7 +161,7 @@ export default function QuotePrint() {
               Email
             </button>
           )}
-          <button className="print-tool-btn print-tool-btn--print" onClick={() => window.print()}>
+          <button className="print-tool-btn print-tool-btn--print" onClick={handleDownloadPdf} disabled={sharing}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M4 5V2h8v3" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
               <path d="M2 5h12v6H2z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
@@ -110,7 +174,7 @@ export default function QuotePrint() {
       </div>
 
       {/* ── Printable Quote ── */}
-      <div className="quote-doc">
+      <div className="quote-doc" ref={docRef}>
 
         {/* Header */}
         <div className="qdoc-header">
