@@ -12,11 +12,15 @@ export default function Masters() {
 
   const [roomTypes, setRoomTypes] = useState([])
   const [itemTypes, setItemTypes] = useState([])
+  const [categoryTypes, setCategoryTypes] = useState([])
+  const [brandTypes, setBrandTypes] = useState([])
   const [defaultTerms, setDefaultTerms] = useState('')
   const [company, setCompany] = useState({ name: '', tagline: '', social: '' })
 
   const [newRoom, setNewRoom] = useState('')
   const [newItem, setNewItem] = useState('')
+  const [newCategory, setNewCategory] = useState('')
+  const [newBrand, setNewBrand] = useState('')
 
   useEffect(() => {
     loadSettings()
@@ -24,6 +28,8 @@ export default function Masters() {
       .then((s) => {
         setRoomTypes(s.room_types ?? SETTING_DEFAULTS.room_types)
         setItemTypes(s.item_types ?? SETTING_DEFAULTS.item_types)
+        setCategoryTypes(s.category_types ?? SETTING_DEFAULTS.category_types)
+        setBrandTypes(s.brand_types ?? SETTING_DEFAULTS.brand_types)
         setDefaultTerms(s.default_terms ?? SETTING_DEFAULTS.default_terms)
         setCompany(s.company ?? SETTING_DEFAULTS.company)
         setLoading(false)
@@ -52,7 +58,6 @@ export default function Masters() {
     setRoomTypes((r) => [...r, v])
     setNewRoom('')
   }
-
   const removeRoom = (i) => setRoomTypes((r) => r.filter((_, idx) => idx !== i))
 
   const addItem = () => {
@@ -61,14 +66,31 @@ export default function Masters() {
     setItemTypes((r) => [...r, v])
     setNewItem('')
   }
-
   const removeItem = (i) => setItemTypes((r) => r.filter((_, idx) => idx !== i))
 
+  const addCategory = () => {
+    const v = newCategory.trim()
+    if (!v || categoryTypes.includes(v)) return
+    setCategoryTypes((r) => [...r, v])
+    setNewCategory('')
+  }
+  const removeCategory = (i) => setCategoryTypes((r) => r.filter((_, idx) => idx !== i))
+
+  const addBrand = () => {
+    const v = newBrand.trim()
+    if (!v || brandTypes.includes(v)) return
+    setBrandTypes((r) => [...r, v])
+    setNewBrand('')
+  }
+  const removeBrand = (i) => setBrandTypes((r) => r.filter((_, idx) => idx !== i))
+
   const tabs = [
-    { key: 'rooms', label: 'Rooms' },
-    { key: 'items', label: 'Items' },
-    { key: 'terms', label: 'Terms' },
-    { key: 'company', label: 'Company' },
+    { key: 'rooms',      label: 'Rooms' },
+    { key: 'items',      label: 'Items' },
+    { key: 'categories', label: 'Category' },
+    { key: 'brands',     label: 'Brand' },
+    { key: 'terms',      label: 'Terms' },
+    { key: 'company',    label: 'Company' },
   ]
 
   if (loading) return (
@@ -169,6 +191,74 @@ export default function Masters() {
               onClick={() => save('item_types', itemTypes)}
             >
               {saved === 'item_types' ? '✓ Saved' : saving ? 'Saving…' : 'Save Items'}
+            </button>
+          </div>
+        )}
+
+        {activeTab === 'categories' && (
+          <div className="masters-section">
+            <p className="masters-hint">These appear in the Category dropdown on each line item.</p>
+            <div className="masters-list">
+              {categoryTypes.map((r, i) => (
+                <div key={i} className="masters-list__row">
+                  <span>{r}</span>
+                  <button className="masters-list__delete" onClick={() => removeCategory(i)} title="Remove">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                      <path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
+                  </button>
+                </div>
+              ))}
+            </div>
+            <div className="masters-add-row">
+              <input
+                placeholder="Add new category…"
+                value={newCategory}
+                onChange={(e) => setNewCategory(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && addCategory()}
+              />
+              <button className="masters-add-btn" onClick={addCategory}>Add</button>
+            </div>
+            <button
+              className={`masters-save-btn ${saved === 'category_types' ? 'masters-save-btn--saved' : ''}`}
+              disabled={saving}
+              onClick={() => save('category_types', categoryTypes)}
+            >
+              {saved === 'category_types' ? '✓ Saved' : saving ? 'Saving…' : 'Save Categories'}
+            </button>
+          </div>
+        )}
+
+        {activeTab === 'brands' && (
+          <div className="masters-section">
+            <p className="masters-hint">These appear in the Brand / Non Brand dropdown on each line item.</p>
+            <div className="masters-list">
+              {brandTypes.map((r, i) => (
+                <div key={i} className="masters-list__row">
+                  <span>{r}</span>
+                  <button className="masters-list__delete" onClick={() => removeBrand(i)} title="Remove">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                      <path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
+                  </button>
+                </div>
+              ))}
+            </div>
+            <div className="masters-add-row">
+              <input
+                placeholder="Add new brand type…"
+                value={newBrand}
+                onChange={(e) => setNewBrand(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && addBrand()}
+              />
+              <button className="masters-add-btn" onClick={addBrand}>Add</button>
+            </div>
+            <button
+              className={`masters-save-btn ${saved === 'brand_types' ? 'masters-save-btn--saved' : ''}`}
+              disabled={saving}
+              onClick={() => save('brand_types', brandTypes)}
+            >
+              {saved === 'brand_types' ? '✓ Saved' : saving ? 'Saving…' : 'Save Brands'}
             </button>
           </div>
         )}

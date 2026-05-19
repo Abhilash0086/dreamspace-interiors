@@ -166,13 +166,15 @@ export default function QuotePrint() {
               <thead><tr>
                 <th className="qdoc-th--num">#</th>
                 <th className="qdoc-th--item">Item</th>
+                <th className="qdoc-th--cat">Category</th>
+                <th className="qdoc-th--brand">Brand</th>
                 <th className="qdoc-th--size">Size</th>
                 <th className="qdoc-th--qty">Qty</th>
                 <th className="qdoc-th--area">Area (sqft)</th>
                 <th className="qdoc-th--rate">Rate (₹)</th>
                 <th className="qdoc-th--amt">Total (₹)</th>
               </tr></thead>
-              <tbody><tr><td colSpan={7} className="qdoc-empty-row">No items added</td></tr></tbody>
+              <tbody><tr><td colSpan={9} className="qdoc-empty-row">No items added</td></tr></tbody>
             </table>
           )
 
@@ -192,6 +194,8 @@ export default function QuotePrint() {
               <thead><tr>
                 <th className="qdoc-th--num">#</th>
                 <th className="qdoc-th--item">Item</th>
+                <th className="qdoc-th--cat">Category</th>
+                <th className="qdoc-th--brand">Brand</th>
                 <th className="qdoc-th--size">Size</th>
                 <th className="qdoc-th--qty">Qty</th>
                 <th className="qdoc-th--area">Area (sqft)</th>
@@ -206,7 +210,7 @@ export default function QuotePrint() {
                     <React.Fragment key={room}>
                       {multipleRooms && (
                         <tr key={`hdr-${room}`} className="qdoc-tr--room-header">
-                          <td colSpan={7} className="qdoc-td--room-header">
+                          <td colSpan={9} className="qdoc-td--room-header">
                             <span className="qdoc-room-label">
                               <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
                                 <path d="M5.5 1L1 4.2V10h3V7h3v3h3V4.2L5.5 1z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round"/>
@@ -226,12 +230,14 @@ export default function QuotePrint() {
                             <td className="qdoc-td--item">{item.itemType || '—'}</td>
                             {isMisc ? (
                               <>
-                                <td className="qdoc-td--size" colSpan={4} style={{ color: '#9A9A9A', fontStyle: 'italic' }}>
+                                <td className="qdoc-td--size" colSpan={6} style={{ color: '#9A9A9A', fontStyle: 'italic' }}>
                                   Lump sum
                                 </td>
                               </>
                             ) : (
                               <>
+                                <td className="qdoc-td--cat">{item.category || '—'}</td>
+                                <td className="qdoc-td--brand">{item.brand || '—'}</td>
                                 <td className="qdoc-td--size">{item.size || '—'}</td>
                                 <td className="qdoc-td--qty">{item.qty || '—'}</td>
                                 <td className="qdoc-td--area">{item.area > 0 ? item.area : '—'}</td>
@@ -244,7 +250,7 @@ export default function QuotePrint() {
                       })}
                       {multipleRooms && (
                         <tr key={`sub-${room}`} className="qdoc-tr--room-subtotal">
-                          <td colSpan={6} className="qdoc-td--room-subtotal-label">
+                          <td colSpan={8} className="qdoc-td--room-subtotal-label">
                             {room} subtotal
                           </td>
                           <td className="qdoc-td--room-subtotal-amt">{fmt(roomTotal)}</td>

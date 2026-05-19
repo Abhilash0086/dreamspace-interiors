@@ -1065,6 +1065,31 @@
 .item-row__item-type:focus { border-color: var(--orange); background: white; }
 .item-row__item-type.placeholder { color: var(--text-light); }
 
+/* ── Category / Brand row ── */
+.item-row__meta-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.item-row__category,
+.item-row__brand {
+  flex: 1;
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  color: var(--text-main);
+  background: var(--field-bg);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 10px;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+}
+.item-row__category:focus,
+.item-row__brand:focus { border-color: var(--orange); background: white; }
+.item-row__category.placeholder,
+.item-row__brand.placeholder { color: var(--text-light); }
+
 /* ── Normal item fields: 2+2 grid + total full width ── */
 .item-row__fields {
   display: grid;

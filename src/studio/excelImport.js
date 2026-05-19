@@ -33,25 +33,36 @@ export function parseQuoteExcel(file) {
             b: cellVal(ws, r, 1),
             c: cellVal(ws, r, 2),
             d: cellVal(ws, r, 3),
-            e: numVal(ws, r, 4),
-            f: numVal(ws, r, 5),
-            g: numVal(ws, r, 6),
+            e: cellVal(ws, r, 4),
+            f: cellVal(ws, r, 5),
+            g: cellVal(ws, r, 6),
+            h: cellVal(ws, r, 7),
+            i: cellVal(ws, r, 8),
+            eNum: numVal(ws, r, 4),
+            fNum: numVal(ws, r, 5),
+            gNum: numVal(ws, r, 6),
+            hNum: numVal(ws, r, 7),
+            iNum: numVal(ws, r, 8),
             _r: r,
           })
         }
 
-        // ── Find header row (contains "ROOM" or "ITEM" in col A or B) ──
+        // ── Find header row ──
         let headerRow = -1
+        let newFormat = false // 9-col format with Category + Brand
         for (let i = 0; i < rows.length; i++) {
           const a = rows[i].a.toUpperCase()
           const b = rows[i].b.toUpperCase()
+          const c = rows[i].c.toUpperCase()
           if (a === 'ROOM' || b === 'ITEM' || a === 'ITEM') {
             headerRow = i
+            // Detect new 9-column format: col C is CATEGORY
+            newFormat = c.includes('CATEGORY') || c.includes('CAT')
             break
           }
         }
 
-        // ── Client info: rows before header ──
+        // ── Client info ──
         const client = { name: '', phone: '', email: '', address: '', projectType: 'Residential' }
         let date = new Date().toISOString().split('T')[0]
         const validity = new Date(); validity.setDate(validity.getDate() + 30)
@@ -59,30 +70,34 @@ export function parseQuoteExcel(file) {
         let createdBy = ''
 
         for (let i = 0; i < (headerRow === -1 ? rows.length : headerRow); i++) {
-          const label = rows[i].a.toUpperCase()
-          const val = rows[i].b
-          const label2 = rows[i].c.toUpperCase()
-          const val2 = rows[i].d
-          const label3 = rows[i].e ? String(rows[i].e) : rows[i].a
-          // handle multi-column info rows
+          const row = rows[i]
+          const label  = row.a.toUpperCase()
+          const val    = row.b
+          const label2 = row.c.toUpperCase()
+          const val2   = row.d
+          const label3 = row.e.toUpperCase()
+          const val3   = row.f
+
           if (label.includes('CLIENT') || label.includes('NAME')) client.name = val
           if (label.includes('PHONE')) client.phone = val
+          if (label.includes('EMAIL')) client.email = val
           if (label.includes('ADDRESS')) client.address = val
           if (label.includes('PROJECT')) client.projectType = val || 'Residential'
+
           if (label.includes('DATE') && !label.includes('VALID')) date = val || date
           if (label2.includes('DATE') && !label2.includes('VALID')) date = val2 || date
-          if (label.includes('VALID') || label2.includes('VALID')) validUntil = val2 || val || validUntil
-          if (label.includes('CREATED') || label2.includes('CREATED')) createdBy = val2 || val
-          // also check col C/D/E/F for date/valid/created
-          const label4 = rows[i].c.toUpperCase()
-          const val4d = rows[i].d
-          if (label4.includes('DATE') && !label4.includes('VALID')) date = val4d || date
-          if (label4.includes('VALID')) validUntil = val4d || validUntil
-          if (label4.includes('CREATED')) createdBy = val4d || createdBy
-          // col E as label, col F as value (for 3-pair rows)
-          const eLabel = String(numVal(ws, i, 4) || cellVal(ws, i, 4)).toUpperCase()
-          const fVal = cellVal(ws, i, 5)
-          if (eLabel.includes('VALID')) validUntil = fVal || validUntil
+          if (label3.includes('DATE') && !label3.includes('VALID')) date = val3 || date
+
+          if (label.includes('VALID')) validUntil = val || validUntil
+          if (label2.includes('VALID')) validUntil = val2 || validUntil
+          if (label3.includes('VALID')) validUntil = val3 || validUntil
+
+          if (label.includes('CREATED')) createdBy = val || createdBy
+          if (label2.includes('CREATED')) createdBy = val2 || createdBy
+          if (label3.includes('CREATED')) createdBy = val3 || createdBy
+
+          if (label2.includes('EMAIL')) client.email = val2 || client.email
+          if (label3.includes('EMAIL')) client.email = val3 || client.email
         }
 
         if (headerRow === -1) {
@@ -90,11 +105,13 @@ export function parseQuoteExcel(file) {
           return
         }
 
-        // ── Parse items, notes, terms after header row ──
+        // ── Parse items ──
+        // New format (9 cols): A=Room B=Item C=Category D=Brand E=Size F=Qty G=Area H=Rate I=Total
+        // Old format (7 cols): A=Room B=Item C=Size D=Qty E=Area F=Rate G=Total
         const items = []
         const notes = []
         const termLines = []
-        let mode = 'items' // 'items' | 'notes' | 'terms'
+        let mode = 'items'
         let lastRoom = ''
 
         for (let i = headerRow + 1; i < rows.length; i++) {
@@ -104,49 +121,59 @@ export function parseQuoteExcel(file) {
           if (aUp === 'NOTES') { mode = 'notes'; continue }
           if (aUp === 'TERMS') { mode = 'terms'; continue }
 
-          if (mode === 'notes') {
-            if (row.a) notes.push(row.a)
-            continue
-          }
-          if (mode === 'terms') {
-            if (row.a) termLines.push(row.a)
-            continue
-          }
+          if (mode === 'notes') { if (row.a) notes.push(row.a); continue }
+          if (mode === 'terms') { if (row.a) termLines.push(row.a); continue }
 
-          // items mode
-          const room = row.a || lastRoom
+          // items mode — column mapping depends on format
+          const room     = row.a || lastRoom
           const itemType = row.b
-          const size = row.c
-          const qty = row.d ? String(row.d) : '1'
-          const rateVal = row.f
-          const totalVal = row.g
 
-          // Skip fully blank rows and section header rows (room label, no item)
-          if (!itemType && !totalVal) {
-            if (row.a) lastRoom = row.a // it's a room section label
-            continue
+          let category, brand, size, qty, rateVal, totalVal
+
+          if (newFormat) {
+            category = row.c
+            brand    = row.d
+            size     = row.e
+            qty      = row.f || '1'
+            // area col G may be pre-filled or we compute it
+            rateVal  = row.hNum
+            totalVal = row.iNum
+          } else {
+            category = ''
+            brand    = ''
+            size     = row.c
+            qty      = row.d || '1'
+            rateVal  = row.fNum
+            totalVal = row.gNum
           }
 
+          if (!itemType && !totalVal) {
+            if (row.a) lastRoom = row.a
+            continue
+          }
           if (row.a) lastRoom = row.a
 
-          // Determine if misc (no size/rate, just total)
           const isMisc = !itemType && totalVal > 0
+          const area = newFormat
+            ? (parseFloat(row.g) > 0 ? parseFloat(row.g) : parseArea(size, qty))
+            : (row.eNum > 0 ? row.eNum : parseArea(size, qty))
 
-          let area = row.e > 0 ? row.e : parseArea(size, qty)
-          let amount = totalVal > 0
+          const amount = totalVal > 0
             ? totalVal
             : area > 0
               ? +(area * rateVal).toFixed(2)
               : +((parseFloat(qty) || 1) * rateVal).toFixed(2)
 
           items.push({
-            id: uid(),
-            room: isMisc ? '' : room,
+            id:       uid(),
+            room:     isMisc ? '' : room,
             itemType: isMisc ? 'Miscellaneous' : (itemType || 'Other'),
-            size: size || '',
-            qty: isMisc ? '' : qty,
-            area: isMisc ? 0 : area,
-            rate: isMisc ? '' : String(rateVal || ''),
+            category: isMisc ? '' : (category || ''),
+            brand:    isMisc ? '' : (brand || ''),
+            size:     size || '',
+            qty:      isMisc ? '' : String(qty),
+            area:     isMisc ? 0 : area,
+            rate:     isMisc ? '' : String(rateVal || ''),
             amount,
           })
         }

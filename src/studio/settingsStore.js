@@ -43,6 +43,8 @@ export const SETTING_DEFAULTS = {
     'Flooring', 'Wall Painting', 'Tiles', 'Wallpaper',
     'Electrical', 'Plumbing', 'Carpentry', 'Furniture', 'Staircase', 'Other',
   ],
+  category_types: ['Panelling', 'Carcass', 'Loft', 'False Ceiling', 'Carcass BWP', 'Cot', 'Partition', 'Others'],
+  brand_types: ['Brand', 'Non Brand', 'NA'],
   default_terms: `1. Given quotation is for the above mentioned products.\n2. Electrical work, electrical fittings and civil work not included.\n3. Payment: 60% advance on confirmation / 30% on/before door installation / 10% on handover.`,
   company: {
     name: 'Dreamspace Interiors',

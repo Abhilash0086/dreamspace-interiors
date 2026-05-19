@@ -10,7 +10,7 @@ import './studio.css'
 const uid = () => Math.random().toString(36).slice(2, 9)
 const fmt = (n) => '₹' + Number(n || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })
 
-function ItemRow({ item, onChange, onDelete, hideRoom = false, itemTypes = [], roomTypes = [] }) {
+function ItemRow({ item, onChange, onDelete, hideRoom = false, itemTypes = [], roomTypes = [], categoryTypes = [], brandTypes = [] }) {
   const isMisc = item.itemType === 'Miscellaneous'
 
   const update = (field, val) => {
@@ -84,6 +84,30 @@ function ItemRow({ item, onChange, onDelete, hideRoom = false, itemTypes = [], r
         )}
       </div>
 
+      {!isMisc && (
+        <div className="item-row__meta-row">
+          <select
+            className={`item-row__category ${!item.category ? 'placeholder' : ''}`}
+            value={item.category || ''}
+            onChange={(e) => update('category', e.target.value)}
+          >
+            <option value="">— Category —</option>
+            {categoryTypes.map((c) => <option key={c} value={c}>{c}</option>)}
+            {item.category && !categoryTypes.includes(item.category) && (
+              <option value={item.category}>{item.category}</option>
+            )}
+          </select>
+          <select
+            className={`item-row__brand ${!item.brand ? 'placeholder' : ''}`}
+            value={item.brand || ''}
+            onChange={(e) => update('brand', e.target.value)}
+          >
+            <option value="">— Brand —</option>
+            {brandTypes.map((b) => <option key={b} value={b}>{b}</option>)}
+          </select>
+        </div>
+      )}
+
       {isMisc ? (
         <div className="item-row__misc-fields">
           <div className="item-row__field item-row__field--amount">
@@ -151,6 +175,8 @@ export default function QuoteForm() {
   const [activeSection, setActiveSection] = useState('client')
   const [roomTypes, setRoomTypes] = useState(ROOM_TYPES)
   const [itemTypes, setItemTypes] = useState(ITEM_TYPES)
+  const [categoryTypes, setCategoryTypes] = useState(SETTING_DEFAULTS.category_types)
+  const [brandTypes, setBrandTypes] = useState(SETTING_DEFAULTS.brand_types)
 
   useEffect(() => {
     const init = async () => {
@@ -162,6 +188,8 @@ export default function QuoteForm() {
       setQuote(q)
       if (settings.room_types?.length) setRoomTypes(settings.room_types)
       if (settings.item_types?.length) setItemTypes(settings.item_types)
+      if (settings.category_types?.length) setCategoryTypes(settings.category_types)
+      if (settings.brand_types?.length) setBrandTypes(settings.brand_types)
     }
     init()
   }, [id])
@@ -421,6 +449,8 @@ export default function QuoteForm() {
                           hideRoom={true}
                           itemTypes={itemTypes}
                           roomTypes={roomTypes}
+                          categoryTypes={categoryTypes}
+                          brandTypes={brandTypes}
                         />
                       ))}
                     </div>
