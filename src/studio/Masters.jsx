@@ -14,6 +14,7 @@ export default function Masters() {
   const [itemTypes, setItemTypes] = useState([])
   const [categoryTypes, setCategoryTypes] = useState([])
   const [brandTypes, setBrandTypes] = useState([])
+  const [rateGuide, setRateGuide] = useState({})
   const [defaultTerms, setDefaultTerms] = useState('')
   const [company, setCompany] = useState({ name: '', tagline: '', social: '' })
 
@@ -30,6 +31,7 @@ export default function Masters() {
         setItemTypes(s.item_types ?? SETTING_DEFAULTS.item_types)
         setCategoryTypes(s.category_types ?? SETTING_DEFAULTS.category_types)
         setBrandTypes(s.brand_types ?? SETTING_DEFAULTS.brand_types)
+        setRateGuide(s.rate_guide ?? SETTING_DEFAULTS.rate_guide)
         setDefaultTerms(s.default_terms ?? SETTING_DEFAULTS.default_terms)
         setCompany(s.company ?? SETTING_DEFAULTS.company)
         setLoading(false)
@@ -84,11 +86,15 @@ export default function Masters() {
   }
   const removeBrand = (i) => setBrandTypes((r) => r.filter((_, idx) => idx !== i))
 
+  const updateRateGuide = (cat, field, val) =>
+    setRateGuide((g) => ({ ...g, [cat]: { ...g[cat], [field]: val } }))
+
   const tabs = [
     { key: 'rooms',      label: 'Rooms' },
     { key: 'items',      label: 'Items' },
     { key: 'categories', label: 'Category' },
     { key: 'brands',     label: 'Brand' },
+    { key: 'rate_guide', label: 'Rate Guide' },
     { key: 'terms',      label: 'Terms' },
     { key: 'company',    label: 'Company' },
   ]
@@ -259,6 +265,53 @@ export default function Masters() {
               onClick={() => save('brand_types', brandTypes)}
             >
               {saved === 'brand_types' ? '✓ Saved' : saving ? 'Saving…' : 'Save Brands'}
+            </button>
+          </div>
+        )}
+
+        {activeTab === 'rate_guide' && (
+          <div className="masters-section">
+            <p className="masters-hint">Rate ranges (₹/sqft) shown as suggestions when filling a quote. Rows follow your Category list.</p>
+            <div className="masters-rate-table-wrap">
+              <table className="masters-rate-table">
+                <thead>
+                  <tr>
+                    <th>Category</th>
+                    <th>Non Brand (₹)</th>
+                    <th>Brand (₹)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {categoryTypes.map((cat) => (
+                    <tr key={cat}>
+                      <td className="masters-rate-table__cat">{cat}</td>
+                      <td>
+                        <input
+                          className="masters-rate-table__input"
+                          value={rateGuide[cat]?.nonBrand ?? ''}
+                          placeholder="e.g. 300-400"
+                          onChange={(e) => updateRateGuide(cat, 'nonBrand', e.target.value)}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          className="masters-rate-table__input"
+                          value={rateGuide[cat]?.brand ?? ''}
+                          placeholder="e.g. 400-500"
+                          onChange={(e) => updateRateGuide(cat, 'brand', e.target.value)}
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <button
+              className={`masters-save-btn ${saved === 'rate_guide' ? 'masters-save-btn--saved' : ''}`}
+              disabled={saving}
+              onClick={() => save('rate_guide', rateGuide)}
+            >
+              {saved === 'rate_guide' ? '✓ Saved' : saving ? 'Saving…' : 'Save Rate Guide'}
             </button>
           </div>
         )}

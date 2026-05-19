@@ -144,6 +144,72 @@
 }
 .masters-field input:focus { border-color: var(--orange); }
 
+/* ── Rate guide table ── */
+.masters-rate-table-wrap {
+  overflow-x: auto;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.masters-rate-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.masters-rate-table thead tr {
+  background: var(--dark);
+}
+
+.masters-rate-table th {
+  color: white;
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 9px 12px;
+  text-align: left;
+}
+
+.masters-rate-table th:not(:first-child) { text-align: center; }
+
+.masters-rate-table td {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--border);
+  background: white;
+}
+
+.masters-rate-table tr:last-child td { border-bottom: none; }
+
+.masters-rate-table__cat {
+  font-weight: 500;
+  color: var(--text-main);
+  white-space: nowrap;
+  font-size: 0.85rem;
+  padding-left: 12px;
+}
+
+.masters-rate-table__input {
+  width: 100%;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  color: var(--text-main);
+  background: transparent;
+  border: 1.5px solid transparent;
+  border-radius: 7px;
+  padding: 6px 8px;
+  outline: none;
+  text-align: center;
+  transition: border-color 0.15s, background 0.15s;
+  box-sizing: border-box;
+}
+.masters-rate-table__input:focus {
+  border-color: var(--orange);
+  background: white;
+}
+.masters-rate-table__input::placeholder { color: #C0BDB8; }
+
 /* ── Save button ── */
 .masters-save-btn {
   padding: 13px;

@@ -45,6 +45,16 @@ export const SETTING_DEFAULTS = {
   ],
   category_types: ['Panelling', 'Carcass', 'Loft', 'False Ceiling', 'Carcass BWP', 'Cot', 'Partition', 'Others'],
   brand_types: ['Brand', 'Non Brand', 'NA'],
+  rate_guide: {
+    'Panelling':     { nonBrand: '300-400',   brand: '400-500'   },
+    'Carcass':       { nonBrand: '700-800',   brand: '800-900'   },
+    'Loft':          { nonBrand: '500-600',   brand: '600-700'   },
+    'False Ceiling': { nonBrand: '65-75',     brand: '80-100'    },
+    'Carcass BWP':   { nonBrand: '800-900',   brand: '1000-1100' },
+    'Cot':           { nonBrand: '1200-1300', brand: '1300-1400' },
+    'Partition':     { nonBrand: '200-300',   brand: '300-400'   },
+    'Others':        { nonBrand: 'Nil',       brand: 'Nil'       },
+  },
   default_terms: `1. Given quotation is for the above mentioned products.\n2. Electrical work, electrical fittings and civil work not included.\n3. Payment: 60% advance on confirmation / 30% on/before door installation / 10% on handover.`,
   company: {
     name: 'Dreamspace Interiors',

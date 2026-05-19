@@ -10,7 +10,7 @@ import './studio.css'
 const uid = () => Math.random().toString(36).slice(2, 9)
 const fmt = (n) => '₹' + Number(n || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })
 
-function ItemRow({ item, onChange, onDelete, hideRoom = false, itemTypes = [], roomTypes = [], categoryTypes = [], brandTypes = [] }) {
+function ItemRow({ item, onChange, onDelete, hideRoom = false, itemTypes = [], roomTypes = [], categoryTypes = [], brandTypes = [], rateGuide = {} }) {
   const isMisc = item.itemType === 'Miscellaneous'
 
   const update = (field, val) => {
@@ -150,6 +150,15 @@ function ItemRow({ item, onChange, onDelete, hideRoom = false, itemTypes = [], r
               value={item.rate || ''} placeholder="0"
               onChange={(e) => update('rate', e.target.value)}
             />
+            {(() => {
+              const guide = item.category ? rateGuide[item.category] : null
+              const hint = guide && item.brand === 'Brand' ? guide.brand
+                : guide && item.brand === 'Non Brand' ? guide.nonBrand
+                : null
+              return hint && hint !== 'Nil'
+                ? <span className="item-row__rate-hint">Suggested: {hint}</span>
+                : null
+            })()}
           </div>
           <div className="item-row__field item-row__field--amount item-row__field--readonly">
             <label>Total (₹)</label>
@@ -177,6 +186,7 @@ export default function QuoteForm() {
   const [itemTypes, setItemTypes] = useState(ITEM_TYPES)
   const [categoryTypes, setCategoryTypes] = useState(SETTING_DEFAULTS.category_types)
   const [brandTypes, setBrandTypes] = useState(SETTING_DEFAULTS.brand_types)
+  const [rateGuide, setRateGuide] = useState(SETTING_DEFAULTS.rate_guide)
 
   useEffect(() => {
     const init = async () => {
@@ -190,6 +200,7 @@ export default function QuoteForm() {
       if (settings.item_types?.length) setItemTypes(settings.item_types)
       if (settings.category_types?.length) setCategoryTypes(settings.category_types)
       if (settings.brand_types?.length) setBrandTypes(settings.brand_types)
+      if (settings.rate_guide) setRateGuide(settings.rate_guide)
     }
     init()
   }, [id])
@@ -451,6 +462,7 @@ export default function QuoteForm() {
                           roomTypes={roomTypes}
                           categoryTypes={categoryTypes}
                           brandTypes={brandTypes}
+                          rateGuide={rateGuide}
                         />
                       ))}
                     </div>
