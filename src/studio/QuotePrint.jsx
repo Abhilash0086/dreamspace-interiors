@@ -13,6 +13,7 @@ export default function QuotePrint() {
   const [quote, setQuote] = useState(null)
   const [company, setCompany] = useState(SETTING_DEFAULTS.company)
   const [sharing, setSharing] = useState(false)
+  const [wpSheet, setWpSheet] = useState(false)
   const docRef = useRef(null)
 
   useEffect(() => {
@@ -34,66 +35,42 @@ export default function QuotePrint() {
     return () => { document.title = 'Dreamspace Interiors' }
   }, [quote])
 
-  const getPdfBlob = async () => {
-    const html2pdf = (await import('html2pdf.js')).default
-    const element = docRef.current
+  const pdfOptions = () => {
     const salutation = quote.client?.salutation ? quote.client.salutation.replace('.', '') + '_' : ''
     const clientName = (quote.client?.name || 'Client').replace(/\s+/g, '_')
     const filename = `${salutation}${clientName}_${quote.id}_Quotation.pdf`
-    const opt = {
-      margin: 0,
-      filename,
-      image: { type: 'jpeg', quality: 0.95 },
-      html2canvas: { scale: 2, useCORS: true, logging: false },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-    }
-    const blob = await html2pdf().set(opt).from(element).outputPdf('blob')
-    return { blob, filename }
-  }
-
-  const handleWhatsApp = async () => {
-    if (!quote || sharing) return
-    const msg = `Hello ${quote.client?.name || ''},\n\nPlease find your interior design quotation from *${company.name}*.\n\n*Quote #:* ${quote.id}\n*Date:* ${fmtDate(quote.date)}\n*Valid Until:* ${fmtDate(quote.validUntil)}\n*Grand Total:* ${fmt(quote.grandTotal)}\n\nThank you for choosing ${company.name}.`
-    const phone = quote.client?.phone?.replace(/\D/g, '') || ''
-
-    // Try Web Share API with file (works on mobile — shows native share sheet with WhatsApp)
-    if (navigator.canShare) {
-      try {
-        setSharing(true)
-        const { blob, filename } = await getPdfBlob()
-        const file = new File([blob], filename, { type: 'application/pdf' })
-        if (navigator.canShare({ files: [file] })) {
-          await navigator.share({ files: [file], title: `Quotation ${quote.id}`, text: msg })
-          return
-        }
-      } catch (err) {
-        if (err.name !== 'AbortError') console.error('Share failed', err)
-        return
-      } finally {
-        setSharing(false)
-      }
-    }
-
-    // Fallback (desktop): open WhatsApp text link
-    window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`, '_blank')
-  }
-
-  const handleDownloadPdf = async () => {
-    if (!quote || sharing) return
-    try {
-      setSharing(true)
-      const html2pdf = (await import('html2pdf.js')).default
-      const salutation = quote.client?.salutation ? quote.client.salutation.replace('.', '') + '_' : ''
-      const clientName = (quote.client?.name || 'Client').replace(/\s+/g, '_')
-      const filename = `${salutation}${clientName}_${quote.id}_Quotation.pdf`
-      const opt = {
+    return {
+      opts: {
         margin: 0,
         filename,
         image: { type: 'jpeg', quality: 0.95 },
         html2canvas: { scale: 2, useCORS: true, logging: false },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-      }
-      await html2pdf().set(opt).from(docRef.current).save()
+      },
+      filename,
+    }
+  }
+
+  const handleWhatsApp = async () => {
+    if (!quote || sharing) return
+    setSharing(true)
+    try {
+      const html2pdf = (await import('html2pdf.js')).default
+      const { opts, filename } = pdfOptions()
+      await html2pdf().set(opts).from(docRef.current).save()
+      setWpSheet(true)
+    } finally {
+      setSharing(false)
+    }
+  }
+
+  const handleDownloadPdf = async () => {
+    if (!quote || sharing) return
+    setSharing(true)
+    try {
+      const html2pdf = (await import('html2pdf.js')).default
+      const { opts } = pdfOptions()
+      await html2pdf().set(opts).from(docRef.current).save()
     } finally {
       setSharing(false)
     }
@@ -172,6 +149,55 @@ export default function QuotePrint() {
           </button>
         </div>
       </div>
+
+      {/* ── WhatsApp instruction sheet ── */}
+      {wpSheet && (() => {
+        const phone = quote.client?.phone?.replace(/\D/g, '') || ''
+        const clientName = [quote.client?.salutation, quote.client?.name].filter(Boolean).join(' ') || 'Client'
+        const msg = `Hello ${quote.client?.name || ''},\n\nPlease find attached your interior design quotation from *${company.name}*.\n\n*Quote #:* ${quote.id}\n*Date:* ${fmtDate(quote.date)}\n*Valid Until:* ${fmtDate(quote.validUntil)}\n*Grand Total:* ${fmt(quote.grandTotal)}\n\nThank you for choosing ${company.name}.`
+        const waUrl = `https://wa.me/91${phone}?text=${encodeURIComponent(msg)}`
+        return (
+          <div className="wp-overlay" onClick={() => setWpSheet(false)}>
+            <div className="wp-sheet" onClick={(e) => e.stopPropagation()}>
+              <div className="wp-sheet__title">Send via WhatsApp</div>
+
+              <div className="wp-sheet__steps">
+                <div className="wp-sheet__step wp-sheet__step--done">
+                  <div className="wp-sheet__step-num">✓</div>
+                  <div className="wp-sheet__step-body">
+                    <strong>PDF saved to your device</strong>
+                    <span>Check your Downloads folder</span>
+                  </div>
+                </div>
+                <div className="wp-sheet__connector" />
+                <div className="wp-sheet__step">
+                  <div className="wp-sheet__step-num">2</div>
+                  <div className="wp-sheet__step-body">
+                    <strong>Open the chat below</strong>
+                    <span>Tap <b>📎</b> → <b>Document</b> → select the PDF</span>
+                  </div>
+                </div>
+              </div>
+
+              <a
+                className="wp-sheet__open-btn"
+                href={waUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setWpSheet(false)}
+              >
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                  <path d="M15.5 2.5A7.9 7.9 0 002.3 12.2L1.5 16.5l4.4-.9A7.9 7.9 0 1015.5 2.5z" fill="#25D366"/>
+                  <path d="M7 7.2c.1.5.5 1.5 1.3 2.3.8.8 1.8 1.2 2.3 1.3.3 0 .6-.1.8-.3l.4-.5c.1-.2 0-.4-.1-.5L10.9 9c-.1-.1-.3-.1-.5 0l-.4.3c-.5-.2-.9-.6-1.2-1.1l.3-.4c.1-.2.1-.4 0-.5L8.3 6.5c-.1-.1-.3-.2-.5-.1l-.5.4C7.1 6.9 7 7.1 7 7.2z" fill="white"/>
+                </svg>
+                Open WhatsApp chat with {clientName}
+              </a>
+
+              <button className="wp-sheet__dismiss" onClick={() => setWpSheet(false)}>Dismiss</button>
+            </div>
+          </div>
+        )
+      })()}
 
       {/* ── Printable Quote ── */}
       <div className="quote-doc" ref={docRef}>

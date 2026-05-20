@@ -64,6 +64,136 @@
 .print-tool-btn--print { background: var(--orange); color: white; }
 .print-tool-btn--print:hover { background: var(--orange-light); }
 
+/* ── WhatsApp sheet ── */
+.wp-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: wp-fade-in 0.2s ease;
+}
+
+@keyframes wp-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.wp-sheet {
+  background: white;
+  border-radius: 20px 20px 0 0;
+  padding: 24px 20px 36px;
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  animation: wp-slide-up 0.25s ease;
+}
+
+@keyframes wp-slide-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+.wp-sheet__title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1A1A1A;
+  text-align: center;
+}
+
+.wp-sheet__steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: #F9F8F6;
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.wp-sheet__step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.wp-sheet__step-num {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #E8E6E2;
+  color: #6B6B6B;
+  font-size: 0.78rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.wp-sheet__step--done .wp-sheet__step-num {
+  background: #DCFCE7;
+  color: #15803D;
+}
+
+.wp-sheet__step-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 3px;
+}
+
+.wp-sheet__step-body strong {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #1A1A1A;
+}
+
+.wp-sheet__step-body span {
+  font-size: 0.78rem;
+  color: #6B6B6B;
+}
+
+.wp-sheet__connector {
+  width: 2px;
+  height: 14px;
+  background: #E0DDD8;
+  margin: 4px 0 4px 12px;
+}
+
+.wp-sheet__open-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #25D366;
+  color: white;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 15px;
+  border-radius: 14px;
+  text-decoration: none;
+  transition: background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.wp-sheet__open-btn:hover { background: #1ebe5d; }
+
+.wp-sheet__dismiss {
+  background: none;
+  border: none;
+  color: #9A9A9A;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-align: center;
+  padding: 4px;
+}
+
 /* ── Quote Document ── */
 .quote-doc {
   max-width: 860px;
