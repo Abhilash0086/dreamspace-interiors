@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { loadSettings, saveSetting, invalidateSettingsCache, SETTING_DEFAULTS } from './settingsStore'
-import { hashPIN } from '../lib/auth'
+import { hashPIN, getStoredPinHash, storePinHash } from '../lib/auth'
 import './masters.css'
 
 export default function Masters() {
@@ -44,7 +44,7 @@ export default function Masters() {
         setRateGuide(s.rate_guide ?? SETTING_DEFAULTS.rate_guide)
         setDefaultTerms(s.default_terms ?? SETTING_DEFAULTS.default_terms)
         setCompany(s.company ?? SETTING_DEFAULTS.company)
-        setStoredPinHash(s.pin_hash || null)
+        setStoredPinHash(getStoredPinHash())
         setLoading(false)
       })
   }, [])
@@ -112,8 +112,7 @@ export default function Masters() {
     setSaving(true)
     try {
       const hash = await hashPIN(pinNew)
-      await saveSetting('pin_hash', hash)
-      invalidateSettingsCache()
+      storePinHash(hash)
       setStoredPinHash(hash)
       setPinCurrent(''); setPinNew(''); setPinConfirm('')
       setPinSuccess(true)

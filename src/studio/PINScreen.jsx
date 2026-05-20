@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { loadSettings, saveSetting, invalidateSettingsCache } from './settingsStore'
-import { hashPIN, isAuthenticated, setAuthenticated } from '../lib/auth'
+import { hashPIN, isAuthenticated, setAuthenticated, getStoredPinHash, storePinHash } from '../lib/auth'
 import './pin.css'
 
 const PIN_LENGTH = 4
@@ -26,14 +25,9 @@ export default function PINScreen() {
 
   useEffect(() => {
     if (isAuthenticated()) { navigate('/studio', { replace: true }); return }
-    loadSettings().catch(() => ({})).then((s) => {
-      if (s.pin_hash) {
-        storedHashRef.current = s.pin_hash
-        setMode('enter')
-      } else {
-        setMode('setup')
-      }
-    })
+    const hash = getStoredPinHash()
+    if (hash) { storedHashRef.current = hash; setMode('enter') }
+    else setMode('setup')
   }, [])
 
   // Keyboard support
@@ -94,8 +88,7 @@ export default function PINScreen() {
       } else if (currentMode === 'confirm') {
         if (value === setupPinRef.current) {
           const hash = await hashPIN(value)
-          await saveSetting('pin_hash', hash)
-          invalidateSettingsCache()
+          storePinHash(hash)
           setAuthenticated()
           navigate('/studio', { replace: true })
         } else {
