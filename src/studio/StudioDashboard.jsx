@@ -4,6 +4,7 @@ import { loadQuotes, deleteQuote, STATUS_META, calcTotals, calcCOP, newBlankQuot
 import { loadSettings, SETTING_DEFAULTS } from './settingsStore'
 import { parseQuoteExcel } from './excelImport'
 import { downloadTemplate, downloadTemplateWithExample } from './excelTemplate'
+import { clearAuth } from '../lib/auth'
 import './studio.css'
 
 const fmt = (n) => '₹' + Number(n || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })
@@ -126,6 +127,12 @@ export default function StudioDashboard() {
           <p>{loading ? '…' : `${filtered.length} quote${filtered.length !== 1 ? 's' : ''}`}</p>
         </div>
         <div className="studio-header__actions">
+          <button className="studio-icon-btn" title="Lock" onClick={() => { clearAuth(); navigate('/') }}>
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <rect x="4" y="8" width="10" height="8" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+              <path d="M6 8V6a3 3 0 116 0v2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+          </button>
           <button className="studio-icon-btn" title="Masters" onClick={() => navigate('/studio/masters')}>
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
               <circle cx="9" cy="9" r="2.5" stroke="currentColor" strokeWidth="1.5"/>

@@ -210,6 +210,14 @@
 }
 .masters-rate-table__input::placeholder { color: #C0BDB8; }
 
+/* ── PIN error ── */
+.masters-pin-error {
+  font-size: 0.82rem;
+  color: #DC2626;
+  margin: 0;
+  font-weight: 500;
+}
+
 /* ── Save button ── */
 .masters-save-btn {
   padding: 13px;

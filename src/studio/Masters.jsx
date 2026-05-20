@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { loadSettings, saveSetting, invalidateSettingsCache, SETTING_DEFAULTS } from './settingsStore'
+import { hashPIN } from '../lib/auth'
 import './masters.css'
 
 export default function Masters() {
@@ -23,6 +24,15 @@ export default function Masters() {
   const [newCategory, setNewCategory] = useState('')
   const [newBrand, setNewBrand] = useState('')
 
+  // Security / PIN
+  const [pinStep, setPinStep] = useState('current') // 'current' | 'new' | 'confirm'
+  const [pinCurrent, setPinCurrent] = useState('')
+  const [pinNew, setPinNew] = useState('')
+  const [pinConfirm, setPinConfirm] = useState('')
+  const [pinError, setPinError] = useState('')
+  const [pinSuccess, setPinSuccess] = useState(false)
+  const [storedPinHash, setStoredPinHash] = useState(null)
+
   useEffect(() => {
     loadSettings()
       .catch(() => ({}))
@@ -34,6 +44,7 @@ export default function Masters() {
         setRateGuide(s.rate_guide ?? SETTING_DEFAULTS.rate_guide)
         setDefaultTerms(s.default_terms ?? SETTING_DEFAULTS.default_terms)
         setCompany(s.company ?? SETTING_DEFAULTS.company)
+        setStoredPinHash(s.pin_hash || null)
         setLoading(false)
       })
   }, [])
@@ -89,6 +100,29 @@ export default function Masters() {
   const updateRateGuide = (cat, field, val) =>
     setRateGuide((g) => ({ ...g, [cat]: { ...g[cat], [field]: val } }))
 
+  const handlePinChange = async () => {
+    setPinError('')
+    // Verify current PIN if one exists
+    if (storedPinHash) {
+      const hash = await hashPIN(pinCurrent)
+      if (hash !== storedPinHash) { setPinError('Current PIN is incorrect'); return }
+    }
+    if (pinNew.length < 4) { setPinError('PIN must be 4 digits'); return }
+    if (pinNew !== pinConfirm) { setPinError('New PINs do not match'); return }
+    setSaving(true)
+    try {
+      const hash = await hashPIN(pinNew)
+      await saveSetting('pin_hash', hash)
+      invalidateSettingsCache()
+      setStoredPinHash(hash)
+      setPinCurrent(''); setPinNew(''); setPinConfirm('')
+      setPinSuccess(true)
+      setTimeout(() => setPinSuccess(false), 3000)
+    } finally {
+      setSaving(false)
+    }
+  }
+
   const tabs = [
     { key: 'rooms',      label: 'Rooms' },
     { key: 'items',      label: 'Items' },
@@ -97,6 +131,7 @@ export default function Masters() {
     { key: 'rate_guide', label: 'Rate Guide' },
     { key: 'terms',      label: 'Terms' },
     { key: 'company',    label: 'Company' },
+    { key: 'security',   label: 'Security' },
   ]
 
   if (loading) return (
@@ -374,6 +409,57 @@ export default function Masters() {
               onClick={() => save('company', company)}
             >
               {saved === 'company' ? '✓ Saved' : saving ? 'Saving…' : 'Save Company'}
+            </button>
+          </div>
+        )}
+
+        {activeTab === 'security' && (
+          <div className="masters-section">
+            <p className="masters-hint">Change the PIN used to unlock the app.</p>
+            <div className="masters-fields">
+              {storedPinHash && (
+                <div className="masters-field">
+                  <label>Current PIN</label>
+                  <input
+                    type="password"
+                    inputMode="numeric"
+                    maxLength={4}
+                    placeholder="••••"
+                    value={pinCurrent}
+                    onChange={(e) => { setPinCurrent(e.target.value.replace(/\D/g, '').slice(0, 4)); setPinError('') }}
+                  />
+                </div>
+              )}
+              <div className="masters-field">
+                <label>New PIN</label>
+                <input
+                  type="password"
+                  inputMode="numeric"
+                  maxLength={4}
+                  placeholder="••••"
+                  value={pinNew}
+                  onChange={(e) => { setPinNew(e.target.value.replace(/\D/g, '').slice(0, 4)); setPinError('') }}
+                />
+              </div>
+              <div className="masters-field">
+                <label>Confirm New PIN</label>
+                <input
+                  type="password"
+                  inputMode="numeric"
+                  maxLength={4}
+                  placeholder="••••"
+                  value={pinConfirm}
+                  onChange={(e) => { setPinConfirm(e.target.value.replace(/\D/g, '').slice(0, 4)); setPinError('') }}
+                />
+              </div>
+            </div>
+            {pinError && <p className="masters-pin-error">{pinError}</p>}
+            <button
+              className={`masters-save-btn ${pinSuccess ? 'masters-save-btn--saved' : ''}`}
+              disabled={saving}
+              onClick={handlePinChange}
+            >
+              {pinSuccess ? '✓ PIN Updated' : saving ? 'Saving…' : storedPinHash ? 'Change PIN' : 'Set PIN'}
             </button>
           </div>
         )}
