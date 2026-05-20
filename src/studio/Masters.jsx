@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { loadSettings, saveSetting, invalidateSettingsCache, SETTING_DEFAULTS } from './settingsStore'
+import { loadQuotes } from './quoteStore'
 import { hashPIN, getStoredPinHash, storePinHash } from '../lib/auth'
 import './masters.css'
 
@@ -23,6 +24,10 @@ export default function Masters() {
   const [newItem, setNewItem] = useState('')
   const [newCategory, setNewCategory] = useState('')
   const [newBrand, setNewBrand] = useState('')
+
+  // Storage
+  const [storageInfo, setStorageInfo]       = useState(null)
+  const [loadingStorage, setLoadingStorage] = useState(false)
 
   // Security / PIN
   const [pinStep, setPinStep] = useState('current') // 'current' | 'new' | 'confirm'
@@ -100,6 +105,24 @@ export default function Masters() {
   const updateRateGuide = (cat, field, val) =>
     setRateGuide((g) => ({ ...g, [cat]: { ...g[cat], [field]: val } }))
 
+  useEffect(() => {
+    if (activeTab !== 'storage' || storageInfo || loadingStorage) return
+    setLoadingStorage(true)
+    Promise.all([loadQuotes(), loadSettings().catch(() => ({}))])
+      .then(([quotes, settings]) => {
+        const sizeOf = (v) => new Blob([JSON.stringify(v)]).size
+        const quotesSize   = quotes.reduce((s, q) => s + sizeOf(q), 0)
+        const settingsSize = sizeOf(settings)
+        setStorageInfo({
+          quotesCount:   quotes.length,
+          quotesSize,
+          settingsSize,
+          totalSize: quotesSize + settingsSize,
+        })
+      })
+      .finally(() => setLoadingStorage(false))
+  }, [activeTab])
+
   const handlePinChange = async () => {
     setPinError('')
     // Verify current PIN if one exists
@@ -131,6 +154,7 @@ export default function Masters() {
     { key: 'terms',      label: 'Terms' },
     { key: 'company',    label: 'Company' },
     { key: 'security',   label: 'Security' },
+    { key: 'storage',    label: 'Storage' },
   ]
 
   if (loading) return (
@@ -409,6 +433,80 @@ export default function Masters() {
             >
               {saved === 'company' ? '✓ Saved' : saving ? 'Saving…' : 'Save Company'}
             </button>
+          </div>
+        )}
+
+        {activeTab === 'storage' && (
+          <div className="masters-section">
+            <p className="masters-hint">Approximate data stored in your Supabase project (free tier limit: 500 MB).</p>
+
+            {loadingStorage ? (
+              <div className="studio-loading" style={{ minHeight: 120 }}><div className="studio-spinner" /></div>
+            ) : storageInfo ? (() => {
+              const FREE_LIMIT = 500 * 1024 * 1024 // 500 MB in bytes
+              const pct = Math.min((storageInfo.totalSize / FREE_LIMIT) * 100, 100)
+              const fmtSize = (b) => {
+                if (b < 1024)             return `${b} B`
+                if (b < 1024 * 1024)      return `${(b / 1024).toFixed(1)} KB`
+                return `${(b / 1024 / 1024).toFixed(2)} MB`
+              }
+              return (
+                <>
+                  {/* Progress bar */}
+                  <div className="storage-bar-wrap">
+                    <div className="storage-bar">
+                      <div
+                        className="storage-bar__fill"
+                        style={{ width: `${pct}%`, background: pct > 80 ? '#DC2626' : pct > 50 ? '#D97706' : 'var(--orange)' }}
+                      />
+                    </div>
+                    <div className="storage-bar__label">
+                      <span>{fmtSize(storageInfo.totalSize)} used</span>
+                      <span>500 MB limit</span>
+                    </div>
+                  </div>
+
+                  {/* Breakdown cards */}
+                  <div className="storage-cards">
+                    <div className="storage-card">
+                      <div className="storage-card__icon">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                          <rect x="2" y="2" width="14" height="14" rx="2.5" stroke="currentColor" strokeWidth="1.4"/>
+                          <path d="M5 6h8M5 9h8M5 12h5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+                        </svg>
+                      </div>
+                      <div className="storage-card__body">
+                        <div className="storage-card__label">Quotations</div>
+                        <div className="storage-card__value">{fmtSize(storageInfo.quotesSize)}</div>
+                        <div className="storage-card__sub">{storageInfo.quotesCount} quote{storageInfo.quotesCount !== 1 ? 's' : ''}</div>
+                      </div>
+                    </div>
+
+                    <div className="storage-card">
+                      <div className="storage-card__icon">
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                          <circle cx="9" cy="9" r="2" stroke="currentColor" strokeWidth="1.4"/>
+                          <path d="M9 2v2M9 14v2M2 9h2M14 9h2M4.1 4.1l1.4 1.4M12.5 12.5l1.4 1.4M4.1 13.9l1.4-1.4M12.5 5.5l1.4-1.4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+                        </svg>
+                      </div>
+                      <div className="storage-card__body">
+                        <div className="storage-card__label">Settings</div>
+                        <div className="storage-card__value">{fmtSize(storageInfo.settingsSize)}</div>
+                        <div className="storage-card__sub">masters &amp; config</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    className="masters-save-btn"
+                    style={{ background: 'transparent', border: '1.5px solid var(--border)', color: 'var(--text-main)' }}
+                    onClick={() => { setStorageInfo(null); setLoadingStorage(false) }}
+                  >
+                    Refresh
+                  </button>
+                </>
+              )
+            })() : null}
           </div>
         )}
 

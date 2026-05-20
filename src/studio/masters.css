@@ -210,6 +210,94 @@
 }
 .masters-rate-table__input::placeholder { color: #C0BDB8; }
 
+/* ── Storage ── */
+.storage-bar-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.storage-bar {
+  height: 10px;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.storage-bar__fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.6s ease;
+  min-width: 2px;
+}
+
+.storage-bar__label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--text-light);
+}
+
+.storage-bar__label span:first-child {
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.storage-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.storage-card {
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.storage-card__icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: #FFF7ED;
+  color: var(--orange);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.storage-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.storage-card__label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-light);
+}
+
+.storage-card__value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.01em;
+}
+
+.storage-card__sub {
+  font-size: 0.72rem;
+  color: var(--text-light);
+}
+
 /* ── PIN error ── */
 .masters-pin-error {
   font-size: 0.82rem;
