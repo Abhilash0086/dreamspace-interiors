@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { loadSettings, saveSetting, invalidateSettingsCache } from './settingsStore'
 import { hashPIN, isAuthenticated, setAuthenticated } from '../lib/auth'
@@ -8,56 +8,76 @@ const PIN_LENGTH = 4
 
 export default function PINScreen() {
   const navigate = useNavigate()
-  const [mode, setMode] = useState(null) // null=loading | 'enter' | 'setup' | 'confirm'
-  const [pin, setPin] = useState('')
-  const [setupPin, setSetupPin] = useState('')
-  const [storedHash, setStoredHash] = useState(null)
-  const [error, setError] = useState('')
-  const [shake, setShake] = useState(false)
-  const [busy, setBusy] = useState(false)
+  const [mode, setMode]         = useState(null) // null | 'enter' | 'setup' | 'confirm'
+  const [pin, setPin]           = useState('')
+  const [error, setError]       = useState('')
+  const [shake, setShake]       = useState(false)
+  const [busy, setBusy]         = useState(false)
+
+  // Refs hold the always-current values so async callbacks never see stale state
+  const setupPinRef   = useRef('')
+  const storedHashRef = useRef(null)
+  const modeRef       = useRef(null)
+  const busyRef       = useRef(false)
+
+  const setBusySafe = (v) => { busyRef.current = v; setBusy(v) }
+
+  useEffect(() => { modeRef.current = mode }, [mode])
 
   useEffect(() => {
     if (isAuthenticated()) { navigate('/studio', { replace: true }); return }
     loadSettings().catch(() => ({})).then((s) => {
-      if (s.pin_hash) { setStoredHash(s.pin_hash); setMode('enter') }
-      else setMode('setup')
+      if (s.pin_hash) {
+        storedHashRef.current = s.pin_hash
+        setMode('enter')
+      } else {
+        setMode('setup')
+      }
     })
   }, [])
 
   // Keyboard support
   useEffect(() => {
-    const handler = (e) => {
-      if (e.key >= '0' && e.key <= '9') handleDigit(e.key)
-      if (e.key === 'Backspace') handleBack()
+    const onKey = (e) => {
+      if (e.key >= '0' && e.key <= '9') addDigit(e.key)
+      if (e.key === 'Backspace') removeDigit()
     }
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
-  }, [pin, mode, setupPin, storedHash, busy])
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, []) // empty deps — addDigit/removeDigit read from refs
 
   const triggerShake = () => {
-    setShake(true)
-    setTimeout(() => setShake(false), 500)
+    setShake(true); setTimeout(() => setShake(false), 500)
   }
 
-  const handleDigit = (d) => {
-    if (busy || pin.length >= PIN_LENGTH) return
-    const next = pin + d
-    setPin(next)
+  // Always read latest pin via functional updater
+  const addDigit = (d) => {
+    if (busyRef.current) return
+    setPin((prev) => {
+      if (prev.length >= PIN_LENGTH) return prev
+      const next = prev + d
+      if (next.length === PIN_LENGTH) {
+        // Use setTimeout so the last dot renders before the async work starts
+        setTimeout(() => submit(next), 100)
+      }
+      return next
+    })
     setError('')
-    if (next.length === PIN_LENGTH) setTimeout(() => submit(next), 120)
   }
 
-  const handleBack = () => {
-    if (!busy) setPin((p) => p.slice(0, -1))
+  const removeDigit = () => {
+    if (!busyRef.current) setPin((p) => p.slice(0, -1))
   }
 
   const submit = async (value) => {
-    if (busy) return
-    setBusy(true)
+    if (busyRef.current) return
+    setBusySafe(true)
     try {
-      if (mode === 'enter') {
+      const currentMode = modeRef.current
+
+      if (currentMode === 'enter') {
         const hash = await hashPIN(value)
-        if (hash === storedHash) {
+        if (hash === storedHashRef.current) {
           setAuthenticated()
           navigate('/studio', { replace: true })
         } else {
@@ -65,12 +85,14 @@ export default function PINScreen() {
           setError('Incorrect PIN')
           setPin('')
         }
-      } else if (mode === 'setup') {
-        setSetupPin(value)
+
+      } else if (currentMode === 'setup') {
+        setupPinRef.current = value   // store in ref — always current
         setPin('')
         setMode('confirm')
-      } else if (mode === 'confirm') {
-        if (value === setupPin) {
+
+      } else if (currentMode === 'confirm') {
+        if (value === setupPinRef.current) {
           const hash = await hashPIN(value)
           await saveSetting('pin_hash', hash)
           invalidateSettingsCache()
@@ -80,12 +102,12 @@ export default function PINScreen() {
           triggerShake()
           setError('PINs do not match — try again')
           setPin('')
-          setSetupPin('')
+          setupPinRef.current = ''
           setMode('setup')
         }
       }
     } finally {
-      setBusy(false)
+      setBusySafe(false)
     }
   }
 
@@ -101,13 +123,13 @@ export default function PINScreen() {
       </div>
 
       <div className="pin-heading">
-        {mode === 'enter'   ? 'Enter PIN'     : null}
-        {mode === 'setup'   ? 'Create a PIN'  : null}
-        {mode === 'confirm' ? 'Confirm PIN'   : null}
+        {mode === 'enter'   && 'Enter PIN'}
+        {mode === 'setup'   && 'Create a PIN'}
+        {mode === 'confirm' && 'Confirm PIN'}
       </div>
       <div className="pin-subheading">
-        {mode === 'setup'   ? 'Choose a 4-digit PIN to protect the app' : null}
-        {mode === 'confirm' ? 'Re-enter the same PIN to confirm'        : null}
+        {mode === 'setup'   && 'Choose a 4-digit PIN to protect the app'}
+        {mode === 'confirm' && 'Re-enter the same PIN to confirm'}
       </div>
 
       <div className={`pin-dots ${shake ? 'pin-dots--shake' : ''}`}>
@@ -116,16 +138,13 @@ export default function PINScreen() {
         ))}
       </div>
 
-      {error
-        ? <div className="pin-error">{error}</div>
-        : <div className="pin-error pin-error--placeholder"> </div>
-      }
+      <div className="pin-error">{error || ' '}</div>
 
       <div className="pin-pad">
         {keys.map((k, i) => {
           if (k === null) return <div key={i} className="pin-key pin-key--empty" />
           if (k === 'back') return (
-            <button key={i} className="pin-key pin-key--back" onClick={handleBack} aria-label="Backspace">
+            <button key={i} className="pin-key pin-key--back" onClick={removeDigit} aria-label="Backspace">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <path d="M15 10H7M7 10l3.5-3.5M7 10l3.5 3.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M5 4.5H16a1.5 1.5 0 011.5 1.5v8A1.5 1.5 0 0116 15.5H5L1.5 10 5 4.5z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"/>
@@ -133,7 +152,7 @@ export default function PINScreen() {
             </button>
           )
           return (
-            <button key={i} className="pin-key" onClick={() => handleDigit(String(k))}>
+            <button key={i} className="pin-key" onClick={() => addDigit(String(k))}>
               {k}
             </button>
           )
