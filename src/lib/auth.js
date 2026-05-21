@@ -1,6 +1,7 @@
 import { supabase } from './supabase'
 
 const SESSION_KEY = 'sbi_auth'
+const PIN_KEY     = 'sbi_pin_hash'   // localStorage cache key
 const SALT        = 'dreamspace-interiors-2024'
 
 export async function hashPIN(pin) {
@@ -9,8 +10,8 @@ export async function hashPIN(pin) {
   return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('')
 }
 
-// PIN hash stored in Supabase settings table (key: 'pin_hash')
-// so it's the same PIN across all devices / browsers
+// Read: Supabase is the source of truth (same PIN across devices).
+// Falls back to localStorage if Supabase is unreachable.
 export async function getStoredPinHash() {
   try {
     const { data } = await supabase
@@ -18,17 +19,28 @@ export async function getStoredPinHash() {
       .select('value')
       .eq('key', 'pin_hash')
       .single()
-    return data?.value || null
-  } catch {
-    return null
-  }
+    if (data?.value) {
+      localStorage.setItem(PIN_KEY, data.value) // keep local cache in sync
+      return data.value
+    }
+  } catch {}
+  // Offline or Supabase misconfigured — fall back to local cache
+  return localStorage.getItem(PIN_KEY) || null
 }
 
+// Write: localStorage first (instant, never fails), then sync to Supabase.
+// Never throws — if Supabase is down the PIN still works via localStorage.
 export async function storePinHash(hash) {
-  const { error } = await supabase
-    .from('settings')
-    .upsert({ key: 'pin_hash', value: hash, updated_at: new Date().toISOString() })
-  if (error) throw error
+  localStorage.setItem(PIN_KEY, hash)
+  try {
+    const { error } = await supabase
+      .from('settings')
+      .upsert({ key: 'pin_hash', value: hash, updated_at: new Date().toISOString() })
+    if (error) console.warn('PIN Supabase sync failed:', error.message)
+  } catch (e) {
+    console.warn('PIN Supabase sync failed:', e)
+  }
+  // localStorage write is the guarantee — Supabase is best-effort sync
 }
 
 export function isAuthenticated()  { return sessionStorage.getItem(SESSION_KEY) === '1' }
