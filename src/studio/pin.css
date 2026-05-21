@@ -10,17 +10,14 @@
   user-select: none;
 }
 
-/* ── Logo ── */
-.pin-logo {
+/* ── Brand name (replaces logo until new asset is provided) ── */
+.pin-brand {
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+  letter-spacing: 0.04em;
   margin-bottom: 32px;
-}
-
-.pin-logo img {
-  height: 52px;
-  width: auto;
-  object-fit: contain;
-  filter: brightness(0) invert(1);
-  opacity: 0.92;
 }
 
 /* ── Heading ── */

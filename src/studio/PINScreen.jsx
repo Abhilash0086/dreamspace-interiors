@@ -120,9 +120,7 @@ export default function PINScreen() {
 
   return (
     <div className="pin-screen">
-      <div className="pin-logo">
-        <img src="/logo.png" alt="Dreamspace Interiors" />
-      </div>
+      <div className="pin-brand">Dreamspace Interiors</div>
 
       <div className="pin-heading">
         {mode === 'enter'   && 'Enter PIN'}

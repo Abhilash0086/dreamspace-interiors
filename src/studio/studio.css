@@ -41,11 +41,6 @@
   box-shadow: 0 2px 12px rgba(0,0,0,0.15);
 }
 
-.studio-header__logo img {
-  height: 36px;
-  width: auto;
-  flex-shrink: 0;
-}
 
 .studio-header__title {
   flex: 1;
