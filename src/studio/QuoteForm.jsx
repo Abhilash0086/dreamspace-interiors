@@ -272,16 +272,33 @@ export default function QuoteForm() {
     setQuote((q) => ({ ...q, comments: q.comments.filter((_, i) => i !== idx) }))
   }
 
-  const handleSave = async (status) => {
-    // Validate: all non-misc items must have category and brand
-    const nonMisc = quote.items.filter((i) => i.itemType !== 'Miscellaneous')
-    const missing = nonMisc.filter((i) => !i.category || !i.brand)
-    if (missing.length > 0) {
+  const validate = () => {
+    // Client name required
+    if (!quote.client.name?.trim()) {
+      setActiveSection('client')
+      setSaveError('Client name is required — please enter a name before saving.')
+      return false
+    }
+    // All non-misc items must have item type, category and brand
+    const nonMisc = quote.items.filter((i) => i.itemType && i.itemType !== 'Miscellaneous')
+    const missingFields = nonMisc.filter((i) => !i.category || !i.brand)
+    if (missingFields.length > 0) {
       setActiveSection('items')
-      setSaveError(`${missing.length} item${missing.length > 1 ? 's are' : ' is'} missing Category or Brand — please fill them before saving.`)
-      return
+      setSaveError(`${missingFields.length} item${missingFields.length > 1 ? 's are' : ' is'} missing Category or Brand — please fill them before saving.`)
+      return false
+    }
+    // At least something to quote
+    if (quote.items.length === 0 && !quote.grandTotal) {
+      setActiveSection('items')
+      setSaveError('Please add at least one line item before saving.')
+      return false
     }
     setSaveError('')
+    return true
+  }
+
+  const handleSave = async (status) => {
+    if (!validate()) return
     setSaving(true)
     try {
       const cop = calcCOP(quote.items, rateGuide)
@@ -571,6 +588,7 @@ export default function QuoteForm() {
             <div className="final-actions">
               <button className="final-btn final-btn--draft" onClick={() => handleSave('draft')}>Save as Draft</button>
               <button className="final-btn final-btn--preview" onClick={async () => {
+                if (!validate()) return
                 const cop = calcCOP(quote.items, rateGuide)
                 await upsertQuote({ ...quote, cop })
                 navigate(`/studio/${quote.id}/print`)
