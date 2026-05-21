@@ -184,6 +184,13 @@
 .cop-card__profit-row span { color: var(--text-light); }
 .cop-card__profit-row strong { font-weight: 700; color: var(--text-main); }
 
+/* ── Items table wrap (scroll on mobile) ── */
+.cop-items-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 10px;
+}
+
 /* ── Items table ── */
 .cop-items-table {
   width: 100%;
@@ -244,6 +251,21 @@
 
 .cop-items-table__total-label { text-align: right; color: var(--text-light); }
 .cop-items-table__total-amt { color: var(--text-main); }
+
+/* ── Responsive ── */
+@media (max-width: 400px) {
+  .cop-summary-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .cop-summary-strip__item {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .cop-summary-strip__item:last-child {
+    border-bottom: none;
+  }
+}
 
 /* ── Card actions ── */
 .cop-card__actions {

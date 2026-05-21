@@ -321,11 +321,18 @@
   margin-top: 6px;
 }
 
+/* ── Items Table Wrap (scroll on mobile) ── */
+.qdoc-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 16px;
+}
+
 /* ── Items Table ── */
 .qdoc-table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 16px;
+  margin-bottom: 0;
   font-size: 8.5pt;
 }
 
@@ -579,6 +586,76 @@
   font-size: 7pt;
   color: #BCBCBC;
   gap: 10px;
+}
+
+/* ─────────────────────────────────────────
+   RESPONSIVE  (@media screen)
+   ───────────────────────────────────────── */
+@media (max-width: 640px) {
+  /* Toolbar: keep buttons on one scrollable row */
+  .print-toolbar {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  .print-back {
+    font-size: 0.82rem;
+    padding: 6px 8px;
+  }
+
+  .print-toolbar__actions {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .print-toolbar__actions::-webkit-scrollbar { display: none; }
+
+  .print-tool-btn {
+    font-size: 0.75rem;
+    padding: 7px 11px;
+    flex-shrink: 0;
+  }
+
+  /* Quote document */
+  .quote-doc {
+    margin: 0;
+    padding: 20px 16px 28px;
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  /* From / To stack vertically */
+  .qdoc-parties {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .qdoc-party--to {
+    padding-left: 0;
+    border-left: none;
+    border-top: 2px solid #F5F4F2;
+    padding-top: 12px;
+  }
+
+  /* Totals box full width */
+  .qdoc-totals {
+    display: block;
+  }
+
+  .qdoc-totals__box {
+    width: 100%;
+  }
+
+  /* Header brand + meta stack on very narrow */
+  .qdoc-header {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .qdoc-title {
+    font-size: 17pt;
+  }
 }
 
 /* ─────────────────────────────────────────

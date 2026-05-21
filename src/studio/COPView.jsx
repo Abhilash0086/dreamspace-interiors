@@ -145,6 +145,7 @@ export default function COPView() {
                     </div>
 
                     {q.cop?.items?.length > 0 && (
+                      <div className="cop-items-table-wrap">
                       <table className="cop-items-table">
                         <thead>
                           <tr>
@@ -190,6 +191,7 @@ export default function COPView() {
                           </tr>
                         </tfoot>
                       </table>
+                      </div>
                     )}
 
                     <div className="cop-card__actions">

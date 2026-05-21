@@ -168,3 +168,18 @@
 .summary-cta--print:hover {
   background: #F5F4F2;
 }
+
+/* ── Responsive ── */
+@media (max-width: 360px) {
+  .summary-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-card__amount {
+    font-size: 1.2rem;
+  }
+
+  .summary-card__amount--range {
+    font-size: 0.95rem;
+  }
+}

@@ -252,20 +252,22 @@ export default function QuotePrint() {
         {(() => {
           const items = quote.items
           if (items.length === 0) return (
-            <table className="qdoc-table">
-              <thead><tr>
-                <th className="qdoc-th--num">#</th>
-                <th className="qdoc-th--item">Item</th>
-                <th className="qdoc-th--cat">Category</th>
-                <th className="qdoc-th--brand">Brand</th>
-                <th className="qdoc-th--size">Size</th>
-                <th className="qdoc-th--qty">Qty</th>
-                <th className="qdoc-th--area">Area (sqft)</th>
-                <th className="qdoc-th--rate">Rate (₹)</th>
-                <th className="qdoc-th--amt">Total (₹)</th>
-              </tr></thead>
-              <tbody><tr><td colSpan={9} className="qdoc-empty-row">No items added</td></tr></tbody>
-            </table>
+            <div className="qdoc-table-wrap">
+              <table className="qdoc-table">
+                <thead><tr>
+                  <th className="qdoc-th--num">#</th>
+                  <th className="qdoc-th--item">Item</th>
+                  <th className="qdoc-th--cat">Category</th>
+                  <th className="qdoc-th--brand">Brand</th>
+                  <th className="qdoc-th--size">Size</th>
+                  <th className="qdoc-th--qty">Qty</th>
+                  <th className="qdoc-th--area">Area (sqft)</th>
+                  <th className="qdoc-th--rate">Rate (₹)</th>
+                  <th className="qdoc-th--amt">Total (₹)</th>
+                </tr></thead>
+                <tbody><tr><td colSpan={9} className="qdoc-empty-row">No items added</td></tr></tbody>
+              </table>
+            </div>
           )
 
           const roomOrder = []
@@ -280,6 +282,7 @@ export default function QuotePrint() {
           let globalIdx = 0
 
           return (
+            <div className="qdoc-table-wrap">
             <table className="qdoc-table">
               <thead><tr>
                 <th className="qdoc-th--num">#</th>
@@ -351,6 +354,7 @@ export default function QuotePrint() {
                 })}
               </tbody>
             </table>
+            </div>
           )
         })()}
 
