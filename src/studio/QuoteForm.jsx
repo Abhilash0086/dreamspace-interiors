@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   newBlankQuote, getQuote, upsertQuote, calcTotals, calcCOP, parseArea,
@@ -174,6 +174,7 @@ export default function QuoteForm() {
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState('')
   const [activeSection, setActiveSection] = useState('client')
+  const originalItemsRef = useRef(null)
   const [roomTypes, setRoomTypes] = useState(ROOM_TYPES)
   const [itemTypes, setItemTypes] = useState(ITEM_TYPES)
   const [categoryTypes, setCategoryTypes] = useState(SETTING_DEFAULTS.category_types)
@@ -188,6 +189,7 @@ export default function QuoteForm() {
       ])
       if (!isNew && !q) { navigate('/studio'); return }
       setQuote(q)
+      originalItemsRef.current = JSON.stringify(q.items || [])
       if (settings.room_types?.length) setRoomTypes(settings.room_types)
       if (settings.item_types?.length) setItemTypes(settings.item_types)
       if (settings.category_types?.length) setCategoryTypes(settings.category_types)
@@ -304,7 +306,8 @@ export default function QuoteForm() {
       const cop = calcCOP(quote.items, rateGuide)
       const toSave = { ...quote, status: status || quote.status, cop }
       await upsertQuote(toSave)
-      navigate(`/studio/${toSave.id}/summary`)
+      const itemsChanged = isNew || JSON.stringify(quote.items) !== originalItemsRef.current
+      navigate(itemsChanged ? `/studio/${toSave.id}/summary` : '/studio')
     } finally {
       setSaving(false)
     }
