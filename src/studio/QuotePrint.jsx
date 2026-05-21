@@ -51,14 +51,42 @@ export default function QuotePrint() {
     }
   }
 
+  const triggerDownload = (file) => {
+    const url = URL.createObjectURL(file)
+    const a   = document.createElement('a')
+    a.href     = url
+    a.download = file.name
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
   const handleWhatsApp = async () => {
     if (!quote || sharing) return
     setSharing(true)
     try {
       const html2pdf = (await import('html2pdf.js')).default
       const { opts, filename } = pdfOptions()
-      await html2pdf().set(opts).from(docRef.current).save()
-      setWpSheet(true)
+
+      // Generate PDF blob once — reused for both mobile share and desktop download
+      const pdfBlob = await html2pdf().set(opts).from(docRef.current).outputPdf('blob')
+      const pdfFile = new File([pdfBlob], filename, { type: 'application/pdf' })
+
+      if (navigator.canShare?.({ files: [pdfFile] })) {
+        // iOS / Android: native OS share sheet — user picks WhatsApp and PDF is attached directly
+        await navigator.share({ files: [pdfFile], title: filename })
+        // Native share handled it — no need for the instruction sheet
+      } else {
+        // Desktop: download PDF then show step-by-step WhatsApp sheet
+        triggerDownload(pdfFile)
+        setWpSheet(true)
+      }
+    } catch (err) {
+      // AbortError = user dismissed the native share sheet — nothing to do
+      if (err?.name !== 'AbortError') {
+        console.error('Share error:', err)
+      }
     } finally {
       setSharing(false)
     }

@@ -24,10 +24,13 @@ export default function PINScreen() {
   useEffect(() => { modeRef.current = mode }, [mode])
 
   useEffect(() => {
-    if (isAuthenticated()) { navigate('/studio', { replace: true }); return }
-    const hash = getStoredPinHash()
-    if (hash) { storedHashRef.current = hash; setMode('enter') }
-    else setMode('setup')
+    const init = async () => {
+      if (isAuthenticated()) { navigate('/studio', { replace: true }); return }
+      const hash = await getStoredPinHash()
+      if (hash) { storedHashRef.current = hash; setMode('enter') }
+      else setMode('setup')
+    }
+    init()
   }, [])
 
   // Keyboard support
@@ -88,7 +91,7 @@ export default function PINScreen() {
       } else if (currentMode === 'confirm') {
         if (value === setupPinRef.current) {
           const hash = await hashPIN(value)
-          storePinHash(hash)
+          await storePinHash(hash)
           setAuthenticated()
           navigate('/studio', { replace: true })
         } else {
@@ -104,7 +107,13 @@ export default function PINScreen() {
     }
   }
 
-  if (!mode) return null
+  if (!mode) return (
+    <div className="pin-screen">
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1 }}>
+        <div className="studio-spinner" style={{ borderColor: 'rgba(255,255,255,0.15)', borderTopColor: 'var(--orange)' }} />
+      </div>
+    </div>
+  )
 
   const dots = Array.from({ length: PIN_LENGTH }).map((_, i) => i < pin.length)
   const keys = [1, 2, 3, 4, 5, 6, 7, 8, 9, null, 0, 'back']

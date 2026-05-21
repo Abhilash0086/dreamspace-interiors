@@ -275,6 +275,12 @@ export default function QuoteForm() {
   }
 
   const validate = () => {
+    // Valid-until must not be before quote date
+    if (quote.date && quote.validUntil && quote.validUntil < quote.date) {
+      setActiveSection('client')
+      setSaveError('"Valid Until" date cannot be before the Quote Date.')
+      return false
+    }
     // Client name required
     if (!quote.client.name?.trim()) {
       setActiveSection('client')

@@ -39,19 +39,19 @@ export default function Masters() {
   const [storedPinHash, setStoredPinHash] = useState(null)
 
   useEffect(() => {
-    loadSettings()
-      .catch(() => ({}))
-      .then((s) => {
-        setRoomTypes(s.room_types ?? SETTING_DEFAULTS.room_types)
-        setItemTypes(s.item_types ?? SETTING_DEFAULTS.item_types)
-        setCategoryTypes(s.category_types ?? SETTING_DEFAULTS.category_types)
-        setBrandTypes(s.brand_types ?? SETTING_DEFAULTS.brand_types)
-        setRateGuide(s.rate_guide ?? SETTING_DEFAULTS.rate_guide)
-        setDefaultTerms(s.default_terms ?? SETTING_DEFAULTS.default_terms)
-        setCompany(s.company ?? SETTING_DEFAULTS.company)
-        setStoredPinHash(getStoredPinHash())
-        setLoading(false)
-      })
+    const init = async () => {
+      const s = await loadSettings().catch(() => ({}))
+      setRoomTypes(s.room_types ?? SETTING_DEFAULTS.room_types)
+      setItemTypes(s.item_types ?? SETTING_DEFAULTS.item_types)
+      setCategoryTypes(s.category_types ?? SETTING_DEFAULTS.category_types)
+      setBrandTypes(s.brand_types ?? SETTING_DEFAULTS.brand_types)
+      setRateGuide(s.rate_guide ?? SETTING_DEFAULTS.rate_guide)
+      setDefaultTerms(s.default_terms ?? SETTING_DEFAULTS.default_terms)
+      setCompany(s.company ?? SETTING_DEFAULTS.company)
+      setStoredPinHash(await getStoredPinHash())
+      setLoading(false)
+    }
+    init()
   }, [])
 
   const flash = (key) => {
@@ -135,7 +135,8 @@ export default function Masters() {
     setSaving(true)
     try {
       const hash = await hashPIN(pinNew)
-      storePinHash(hash)
+      await storePinHash(hash)
+      invalidateSettingsCache()
       setStoredPinHash(hash)
       setPinCurrent(''); setPinNew(''); setPinConfirm('')
       setPinSuccess(true)
