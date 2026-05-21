@@ -146,10 +146,11 @@
 
 /* ── Rate guide table ── */
 .masters-rate-table-wrap {
-  overflow-x: auto;
+  overflow-x: auto;       /* must come AFTER any overflow shorthand */
+  overflow-y: hidden;     /* clips border-radius corners without blocking x-scroll */
+  -webkit-overflow-scrolling: touch;
   border: 1.5px solid var(--border);
   border-radius: 12px;
-  overflow: hidden;
 }
 
 .masters-rate-table {
@@ -296,6 +297,13 @@
 .storage-card__sub {
   font-size: 0.72rem;
   color: var(--text-light);
+}
+
+/* ── Responsive ── */
+@media (max-width: 360px) {
+  .storage-cards {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ── PIN error ── */
