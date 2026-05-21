@@ -187,7 +187,9 @@ export default function COPView() {
                         <tfoot>
                           <tr>
                             <td colSpan="5" className="cop-items-table__total-label">Total COP</td>
-                            <td className="cop-items-table__total-amt">{fmt(copTotal)}</td>
+                            <td className="cop-items-table__total-amt">
+                              {copMin === copMax ? fmt(copMin) : `${fmt(copMin)} – ${fmt(copMax)}`}
+                            </td>
                           </tr>
                         </tfoot>
                       </table>

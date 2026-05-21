@@ -281,7 +281,14 @@ export default function QuoteForm() {
       setSaveError('Client name is required — please enter a name before saving.')
       return false
     }
-    // All non-misc items must have item type, category and brand
+    // Every item must have an item type selected
+    const blankType = quote.items.filter((i) => !i.itemType)
+    if (blankType.length > 0) {
+      setActiveSection('items')
+      setSaveError(`${blankType.length} item${blankType.length > 1 ? 's have' : ' has'} no item type selected — please select a type or remove the row.`)
+      return false
+    }
+    // All non-misc items must have category and brand
     const nonMisc = quote.items.filter((i) => i.itemType && i.itemType !== 'Miscellaneous')
     const missingFields = nonMisc.filter((i) => !i.category || !i.brand)
     if (missingFields.length > 0) {
@@ -308,6 +315,8 @@ export default function QuoteForm() {
       await upsertQuote(toSave)
       const itemsChanged = isNew || JSON.stringify(quote.items) !== originalItemsRef.current
       navigate(itemsChanged ? `/studio/${toSave.id}/summary` : '/studio')
+    } catch (err) {
+      setSaveError('Failed to save — please check your connection and try again.')
     } finally {
       setSaving(false)
     }
