@@ -35,8 +35,8 @@ function buildSheet(withExample) {
   const rows = []
 
   // ── Client info ──
-  rows.push(['Client Name', withExample ? 'Mr. Ravi Kumar' : '',   'Date',        withExample ? '2026-05-16' : '', 'Valid Until', withExample ? '2026-06-15' : ''])
-  rows.push(['Phone',       withExample ? '9876543210' : '',        'Email',       withExample ? 'ravi@email.com' : '', 'Created By', withExample ? 'Aswin' : ''])
+  rows.push(['Client Name', withExample ? 'Sample Customer' : '',   'Date',        withExample ? '2026-05-16' : '', 'Valid Until', withExample ? '2026-06-15' : ''])
+  rows.push(['Phone',       withExample ? '9999999999' : '',        'Email',       withExample ? 'sample@email.com' : '', 'Created By', withExample ? 'Studio' : ''])
   rows.push(['Project Type', withExample ? 'Residential' : 'Residential'])
   rows.push([]) // blank separator
 
