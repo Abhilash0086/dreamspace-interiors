@@ -49,7 +49,7 @@ export default function Hero() {
       draw() {
         ctx.beginPath()
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2)
-        ctx.fillStyle = `rgba(232,93,4,${this.opacity})`
+        ctx.fillStyle = `rgba(196,151,58,${this.opacity})`
         ctx.fill()
       }
     }

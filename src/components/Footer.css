@@ -1,4 +1,4 @@
-.footer {
+﻿.footer {
   background: var(--dark);
   color: rgba(255,255,255,0.6);
 }
@@ -51,8 +51,8 @@
 
 .footer__social:hover {
   color: var(--white);
-  border-color: rgba(232,93,4,0.4);
-  background: rgba(232,93,4,0.08);
+  border-color: rgba(196,151,58,0.4);
+  background: rgba(196,151,58,0.08);
 }
 
 .footer__col-title {

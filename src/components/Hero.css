@@ -1,4 +1,4 @@
-.hero {
+﻿.hero {
   position: relative;
   min-height: 100vh;
   background: var(--dark);
@@ -23,7 +23,7 @@
   right: -200px;
   width: 700px;
   height: 700px;
-  background: radial-gradient(ellipse at center, rgba(232,93,4,0.18) 0%, transparent 70%);
+  background: radial-gradient(ellipse at center, rgba(196,151,58,0.18) 0%, transparent 70%);
   border-radius: 50%;
   pointer-events: none;
   z-index: 0;
@@ -157,7 +157,7 @@
 .hero__btn-primary:hover {
   background: var(--orange-light);
   transform: translateY(-2px);
-  box-shadow: 0 12px 40px rgba(232,93,4,0.35);
+  box-shadow: 0 12px 40px rgba(196,151,58,0.35);
 }
 
 .hero__btn-secondary {
@@ -286,9 +286,9 @@
   left: 15%;
   right: 10%;
   height: 22%;
-  background: linear-gradient(135deg, rgba(232,93,4,0.15) 0%, rgba(232,93,4,0.05) 100%);
+  background: linear-gradient(135deg, rgba(196,151,58,0.15) 0%, rgba(196,151,58,0.05) 100%);
   border-radius: 8px;
-  border: 1px solid rgba(232,93,4,0.15);
+  border: 1px solid rgba(196,151,58,0.15);
 }
 
 .room-sofa {
@@ -363,9 +363,9 @@
   right: 18%;
   width: 4%;
   height: 45%;
-  background: linear-gradient(180deg, rgba(232,93,4,0.6) 0%, rgba(232,93,4,0.1) 30%, #2A2020 100%);
+  background: linear-gradient(180deg, rgba(196,151,58,0.6) 0%, rgba(196,151,58,0.1) 30%, #2A2020 100%);
   border-radius: 50% 50% 2px 2px;
-  box-shadow: 0 0 30px rgba(232,93,4,0.3), 0 0 60px rgba(232,93,4,0.15);
+  box-shadow: 0 0 30px rgba(196,151,58,0.3), 0 0 60px rgba(196,151,58,0.15);
 }
 
 .room-art-piece {
@@ -374,7 +374,7 @@
   left: 14%;
   width: 22%;
   height: 28%;
-  background: linear-gradient(135deg, #E85D04 0%, #C44D00 50%, #2A1A0A 100%);
+  background: linear-gradient(135deg, #C4973A 0%, #A8802E 50%, #2A1A0A 100%);
   border-radius: 4px;
   border: 3px solid rgba(255,255,255,0.05);
   box-shadow: 0 4px 20px rgba(0,0,0,0.4);

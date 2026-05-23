@@ -233,8 +233,7 @@ export default function QuotePrint() {
         {/* Header */}
         <div className="qdoc-header">
           <div className="qdoc-header__brand">
-            <div className="qdoc-header__company">{company.name}</div>
-            <div className="qdoc-header__tagline">{company.tagline}</div>
+            <img src="/logo.png" className="qdoc-logo" alt={company.name} />
           </div>
           <div className="qdoc-header__meta">
             <h1 className="qdoc-title">QUOTATION</h1>

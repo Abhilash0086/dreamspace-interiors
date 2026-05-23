@@ -119,6 +119,9 @@ export default function StudioDashboard() {
   return (
     <div className="studio">
       <header className="studio-header">
+        <div className="studio-header__logo">
+          <img src="/logo.png" alt="Dreamspace Interiors" className="studio-logo-img" />
+        </div>
         <div className="studio-header__title">
           <h1>Quotations</h1>
           <p>{loading ? '…' : `${filtered.length} quote${filtered.length !== 1 ? 's' : ''}`}</p>

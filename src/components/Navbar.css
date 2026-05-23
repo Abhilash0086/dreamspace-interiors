@@ -1,4 +1,4 @@
-.navbar {
+﻿.navbar {
   position: fixed;
   top: 0;
   left: 0;
@@ -12,7 +12,7 @@
   background: rgba(13, 13, 13, 0.97);
   backdrop-filter: blur(12px);
   padding: 14px 0;
-  box-shadow: 0 1px 0 rgba(232,93,4,0.15);
+  box-shadow: 0 1px 0 rgba(196,151,58,0.15);
 }
 
 .navbar__inner {

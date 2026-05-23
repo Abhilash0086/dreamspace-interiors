@@ -1,4 +1,4 @@
-.contact {
+﻿.contact {
   padding: 120px 0;
   background: var(--white);
 }
@@ -54,7 +54,7 @@
 }
 
 a.contact-item:hover {
-  border-color: rgba(232,93,4,0.3);
+  border-color: rgba(196,151,58,0.3);
   background: var(--orange-pale);
   transform: translateX(4px);
 }
@@ -150,7 +150,7 @@ a.contact-item:hover {
 .contact__field select:focus,
 .contact__field textarea:focus {
   border-color: var(--orange);
-  box-shadow: 0 0 0 3px rgba(232,93,4,0.1);
+  box-shadow: 0 0 0 3px rgba(196,151,58,0.1);
 }
 
 .contact__field input::placeholder,

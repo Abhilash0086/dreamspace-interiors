@@ -1,4 +1,4 @@
-.process {
+﻿.process {
   padding: 120px 0 0;
   background: var(--light-bg);
   overflow: hidden;
@@ -76,7 +76,7 @@
   letter-spacing: 0.05em;
   color: var(--orange);
   background: var(--white);
-  border: 1px solid rgba(232,93,4,0.25);
+  border: 1px solid rgba(196,151,58,0.25);
   border-radius: 6px;
   padding: 2px 6px;
   z-index: 1;
@@ -110,8 +110,8 @@
   min-height: 60px;
   background: repeating-linear-gradient(
     to bottom,
-    rgba(232,93,4,0.3) 0px,
-    rgba(232,93,4,0.3) 6px,
+    rgba(196,151,58,0.3) 0px,
+    rgba(196,151,58,0.3) 6px,
     transparent 6px,
     transparent 14px
   );
