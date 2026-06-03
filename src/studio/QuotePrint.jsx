@@ -450,7 +450,6 @@ export default function QuotePrint() {
         {/* Footer */}
         <div className="qdoc-footer">
           <span>{company.name}</span>
-          <span>{company.social}</span>
         </div>
       </div>
     </>
