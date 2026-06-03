@@ -401,7 +401,14 @@ export default function QuotePrint() {
             )}
             <div className="qdoc-total-row qdoc-total-row--grand">
               <span>GRAND TOTAL</span>
-              <span>{fmt(quote.grandTotal)}</span>
+              {quote.grandTotalAlt ? (
+                <span className="qdoc-total--dual">
+                  <span>{fmt(quote.grandTotalAlt)} / {fmt(quote.grandTotal)}</span>
+                  <span className="qdoc-total--dual-note">({quote.grandTotalAltLabel || 'Based on customer preference'})</span>
+                </span>
+              ) : (
+                <span>{fmt(quote.grandTotal)}</span>
+              )}
             </div>
           </div>
         </div>
