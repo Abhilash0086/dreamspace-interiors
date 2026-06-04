@@ -551,6 +551,8 @@
 /* ── Terms ── */
 .qdoc-terms {
   margin-bottom: 20px;
+  page-break-inside: avoid;
+  break-inside: avoid;
 }
 
 .qdoc-terms__label {
@@ -573,6 +575,8 @@
   display: flex;
   gap: 40px;
   margin-bottom: 20px;
+  page-break-inside: avoid;
+  break-inside: avoid;
   padding-top: 16px;
   border-top: 1px solid #E8E8E4;
 }
