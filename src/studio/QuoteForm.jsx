@@ -294,14 +294,6 @@ export default function QuoteForm() {
       setSaveError(`${blankType.length} item${blankType.length > 1 ? 's have' : ' has'} no item type selected — please select a type or remove the row.`)
       return false
     }
-    // All non-misc items must have category and brand
-    const nonMisc = quote.items.filter((i) => i.itemType && i.itemType !== 'Miscellaneous')
-    const missingFields = nonMisc.filter((i) => !i.category || !i.brand)
-    if (missingFields.length > 0) {
-      setActiveSection('items')
-      setSaveError(`${missingFields.length} item${missingFields.length > 1 ? 's are' : ' is'} missing Category or Brand — please fill them before saving.`)
-      return false
-    }
     // At least something to quote
     if (quote.items.length === 0 && !quote.grandTotal) {
       setActiveSection('items')
