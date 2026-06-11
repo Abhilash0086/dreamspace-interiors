@@ -75,17 +75,6 @@ export function parseQuoteExcel(file) {
           return
         }
 
-        if (missingCategoryCol || missingBrandCol) {
-          const missing = []
-          if (missingCategoryCol) missing.push('Category (column C)')
-          if (missingBrandCol) missing.push('Brand/Non Brand (column D)')
-          reject(new Error(
-            `Required columns are missing: ${missing.join(', ')}.\n` +
-            'Please download the latest template and ensure columns are in the correct order:\n' +
-            'Room | Item | Category | Brand/Non Brand | Size | Qty | Area | Rate | Total'
-          ))
-          return
-        }
 
         // ── Client info ──
         const client = { name: '', phone: '', email: '', address: '', projectType: 'Residential' }
@@ -161,10 +150,6 @@ export function parseQuoteExcel(file) {
           const isMisc = (!itemType && totalVal > 0) || itemType?.toLowerCase() === 'miscellaneous'
           const rowLabel = itemType ? `"${itemType}"` : `Row ${i + 1}`
 
-          if (!isMisc) {
-            if (!category) warnings.push(`${rowLabel} (${room || 'no room'}): Category is missing`)
-            if (!brand)    warnings.push(`${rowLabel} (${room || 'no room'}): Brand/Non Brand is missing`)
-          }
 
           const area = areaRaw > 0 ? areaRaw : parseArea(size, qty)
           const amount = totalVal > 0
