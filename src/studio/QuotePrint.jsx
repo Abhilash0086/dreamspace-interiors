@@ -337,14 +337,15 @@ export default function QuotePrint() {
                           </td>
                         </tr>
                       )}
-                      {roomItems.map((item) => {
+                      {roomItems.map((item, idx) => {
                         globalIdx++
                         const n = globalIdx
                         const isMisc = item.itemType === 'Miscellaneous'
+                        const sameAsPrev = idx > 0 && item.itemType === roomItems[idx - 1].itemType
                         return (
                           <tr key={item.id} className={n % 2 === 0 ? 'qdoc-tr--even' : ''}>
                             <td className="qdoc-td--num">{n}</td>
-                            <td className="qdoc-td--item">{item.itemType || '—'}</td>
+                            <td className="qdoc-td--item">{sameAsPrev ? '' : (item.itemType || '—')}</td>
                             {isMisc ? (
                               <>
                                 <td className="qdoc-td--size" colSpan={4} style={{ color: '#9A9A9A', fontStyle: 'italic' }}>
@@ -384,10 +385,6 @@ export default function QuotePrint() {
         <div className="qdoc-totals">
           <div className="qdoc-totals__spacer" />
           <div className="qdoc-totals__box">
-            <div className="qdoc-total-row">
-              <span>Subtotal</span>
-              <span>{fmt(quote.subtotal)}</span>
-            </div>
             {quote.discountAmt > 0 && (
               <div className="qdoc-total-row qdoc-total-row--discount">
                 <span>Discount ({quote.discountPct}%)</span>
