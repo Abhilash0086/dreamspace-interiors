@@ -322,7 +322,6 @@ export default function QuotePrint() {
               <tbody>
                 {roomOrder.map((room) => {
                   const roomItems = grouped[room]
-                  const roomTotal = roomItems.reduce((s, i) => s + (parseFloat(i.amount) || 0), 0)
                   return (
                     <React.Fragment key={room}>
                       {multipleRooms && (
@@ -364,14 +363,6 @@ export default function QuotePrint() {
                           </tr>
                         )
                       })}
-                      {multipleRooms && (
-                        <tr key={`sub-${room}`} className="qdoc-tr--room-subtotal">
-                          <td colSpan={6} className="qdoc-td--room-subtotal-label">
-                            {room} subtotal
-                          </td>
-                          <td className="qdoc-td--room-subtotal-amt">{fmt(roomTotal)}</td>
-                        </tr>
-                      )}
                     </React.Fragment>
                   )
                 })}
