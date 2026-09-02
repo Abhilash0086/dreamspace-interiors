@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   newBlankQuote, getQuote, upsertQuote, calcTotals, calcCOP, parseArea,
-  PROJECT_TYPES, ITEM_TYPES, ROOM_TYPES
+  PROJECT_TYPES, ITEM_TYPES, ROOM_TYPES, TIER_OPTIONS
 } from './quoteStore'
 import { loadSettings, SETTING_DEFAULTS } from './settingsStore'
 import './studio.css'
@@ -424,6 +424,13 @@ export default function QuoteForm() {
               <label>Project Type</label>
               <select value={quote.client.projectType} onChange={(e) => set('client.projectType', e.target.value)}>
                 {PROJECT_TYPES.map((t) => <option key={t}>{t}</option>)}
+              </select>
+            </div>
+            <div className="form-field">
+              <label>Package</label>
+              <select value={quote.tier || ''} onChange={(e) => set('tier', e.target.value)}>
+                <option value="">— Not set —</option>
+                {TIER_OPTIONS.map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
             </div>
             <div className="form-field">

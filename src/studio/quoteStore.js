@@ -109,6 +109,7 @@ export async function newBlankQuote() {
     validUntil: validity.toISOString().split('T')[0],
     status: 'draft',
     createdBy: '',
+    tier: '',
     client: { name: '', phone: '', email: '', address: '', projectType: 'Residential' },
     items: [],
     comments: [
@@ -135,6 +136,14 @@ export const STATUS_META = {
   accepted: { label: 'Accepted', color: '#1A7A3C', bg: '#EAFAF1' },
   rejected: { label: 'Rejected', color: '#B91C1C', bg: '#FEF2F2' },
 }
+
+// Package tier — controls the quality/cost band of materials used on the quote.
+// Blank means unset: nothing is shown on the printed quote until a tier is chosen.
+export const TIER_META = {
+  Gold:     { label: 'Gold',     color: '#8A6216', bg: '#FBF1DC' },
+  Platinum: { label: 'Platinum', color: '#54595F', bg: '#EEF0F1' },
+}
+export const TIER_OPTIONS = Object.keys(TIER_META)
 
 export const PROJECT_TYPES = ['Residential', 'Commercial', 'Modular Kitchen', 'False Ceiling', 'Renovation', 'Consultation']
 

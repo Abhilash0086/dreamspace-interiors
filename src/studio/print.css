@@ -256,6 +256,19 @@
   text-align: right;
 }
 
+.qdoc-header__meta { text-align: right; }
+
+.qdoc-tier-badge {
+  display: inline-block;
+  font-size: 7.5pt;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
 .qdoc-meta-table { border-collapse: collapse; margin-left: auto; }
 .qdoc-meta-table td {
   padding: 2px 6px;

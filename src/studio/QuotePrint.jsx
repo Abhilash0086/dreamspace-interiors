@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { getQuote, STATUS_META, upsertQuote } from './quoteStore'
+import { getQuote, STATUS_META, TIER_META, upsertQuote } from './quoteStore'
 import { loadSettings, SETTING_DEFAULTS } from './settingsStore'
 import './print.css'
 
@@ -238,6 +238,14 @@ export default function QuotePrint() {
           </div>
           <div className="qdoc-header__meta">
             <h1 className="qdoc-title">QUOTATION</h1>
+            {quote.tier && TIER_META[quote.tier] && (
+              <span
+                className="qdoc-tier-badge"
+                style={{ color: TIER_META[quote.tier].color, background: TIER_META[quote.tier].bg }}
+              >
+                {TIER_META[quote.tier].label} Package
+              </span>
+            )}
             <table className="qdoc-meta-table">
               <tbody>
                 <tr><td>Quote #</td><td><strong>{quote.id}</strong></td></tr>
