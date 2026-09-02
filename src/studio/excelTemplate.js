@@ -92,12 +92,12 @@ export function downloadTemplate() {
   const wb = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(wb, buildSheet(false), 'Quote')
   XLSX.utils.book_append_sheet(wb, buildListsSheet(), 'Lists')
-  XLSX.writeFile(wb, 'Dreamspace Quote Template.xlsx')
+  XLSX.writeFile(wb, 'Dream Space Quote Template.xlsx')
 }
 
 export function downloadTemplateWithExample() {
   const wb = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(wb, buildSheet(true), 'Quote')
   XLSX.utils.book_append_sheet(wb, buildListsSheet(), 'Lists')
-  XLSX.writeFile(wb, 'Dreamspace Quote Template (Example).xlsx')
+  XLSX.writeFile(wb, 'Dream Space Quote Template (Example).xlsx')
 }

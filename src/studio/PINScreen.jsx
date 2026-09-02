@@ -121,7 +121,7 @@ export default function PINScreen() {
   return (
     <div className="pin-screen">
       <div className="pin-logo-wrap">
-        <img src="/logo.png" className="pin-logo-img" alt="Dreamspace Interiors" />
+        <img src="/logo.png" className="pin-logo-img" alt="Dream Space Interiors" />
       </div>
 
       <div className="pin-heading">

@@ -120,7 +120,7 @@ export default function StudioDashboard() {
     <div className="studio">
       <header className="studio-header">
         <div className="studio-header__logo">
-          <img src="/logo.png" alt="Dreamspace Interiors" className="studio-logo-img" />
+          <img src="/logo.png" alt="Dream Space Interiors" className="studio-logo-img" />
         </div>
         <div className="studio-header__title">
           <h1>Quotations</h1>

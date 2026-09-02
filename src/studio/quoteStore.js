@@ -125,7 +125,7 @@ export async function newBlankQuote() {
     grandTotal: 0,
     notes: '',
     terms: settings.default_terms ?? SETTING_DEFAULTS.default_terms,
-    bankDetails: 'Account Name: Dreamspace Interiors\nBank: [Bank Name]\nAccount No: [Account Number]\nIFSC: [IFSC Code]',
+    bankDetails: 'Account Name: Dream Space Interiors\nBank: [Bank Name]\nAccount No: [Account Number]\nIFSC: [IFSC Code]',
   }
 }
 

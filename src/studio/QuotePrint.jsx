@@ -32,7 +32,7 @@ export default function QuotePrint() {
     const salutation = quote.client?.salutation ? quote.client.salutation.replace('.', '') + '_' : ''
     const clientName = (quote.client?.name || 'Client').replace(/\s+/g, '_')
     document.title = `${salutation}${clientName}_Quotation`
-    return () => { document.title = 'Dreamspace Interiors' }
+    return () => { document.title = company.name }
   }, [quote])
 
   const pdfOptions = () => {
@@ -107,7 +107,7 @@ export default function QuotePrint() {
 
   const handleEmail = () => {
     if (!quote) return
-    const subject = encodeURIComponent(`Quotation ${quote.id} — Dreamspace Interiors`)
+    const subject = encodeURIComponent(`Quotation ${quote.id} — ${company.name}`)
     const body = encodeURIComponent(`Dear ${quote.client?.name || ''},\n\nPlease find attached your interior design quotation from ${company.name}.\n\nQuote #: ${quote.id}\nDate: ${fmtDate(quote.date)}\nValid Until: ${fmtDate(quote.validUntil)}\nGrand Total: ${fmt(quote.grandTotal)}\n\nThank you for choosing ${company.name}.`)
     window.location.href = `mailto:${quote.client.email}?subject=${subject}&body=${body}`
   }
